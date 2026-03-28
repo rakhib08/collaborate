@@ -1,0 +1,1643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dev Tracker</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#0d1117;color:#c9d1d9;min-height:100vh}
+input,button,select{font-family:inherit}
+a{color:#58a6ff}
+.screen{display:none}
+.screen.active{display:flex;min-height:100vh;flex-direction:column}
+#s-login.active{align-items:center;justify-content:center;padding:20px}
+#s-setup.active{align-items:flex-start;justify-content:center;padding:30px 20px;overflow-y:auto}
+#s-app{flex-direction:column}
+
+/* Shared */
+.sub{font-size:13px;color:#8b949e}
+.status-msg{display:none;margin-top:12px;padding:11px 13px;border-radius:10px;font-size:12px;line-height:1.55}
+.status-msg.err{display:block;background:#2b1116;border:1px solid #f85149;color:#ffb6b0}
+.status-msg.ok{display:block;background:#10231a;border:1px solid #2ea043;color:#8ddb9b}
+.status-msg.info{display:block;background:#111f2f;border:1px solid #1f6feb;color:#b6d7ff}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;color:#8b949e;margin-bottom:5px}
+.field input,.field textarea{width:100%;padding:9px 12px;background:#0d1117;border:1px solid #30363d;border-radius:8px;color:#c9d1d9;font-size:14px;outline:none}
+.field input:focus,.field textarea:focus{border-color:#58a6ff}
+.field input.bad,.field textarea.bad{border-color:#f85149;background:#1d1117}
+.field small{color:#8b949e;font-size:11px;margin-top:3px;display:block}
+.btn-green{width:100%;padding:11px;background:#238636;border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;margin-top:4px}
+.btn-green:hover{background:#2ea043}
+.btn-green:disabled{opacity:.65;cursor:not-allowed}
+.btn-red{padding:10px 20px;background:#b62324;border:none;border-radius:8px;color:#fff;font-size:13px;cursor:pointer}
+.btn-red:hover{background:#d32a2b}
+.tbtn{background:#21262d;border:1px solid #30363d;border-radius:8px;color:#c9d1d9;padding:6px 12px;cursor:pointer;font-size:12px}
+.tbtn:hover{background:#30363d}
+.tbtn:disabled{opacity:.55;cursor:not-allowed}
+.tbtn.red{color:#f85149;border-color:#f85149}
+.tbtn.ghost{background:transparent}
+.pill{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:4px 10px;font-size:11px}
+.pill.beta{background:#2d2208;border:1px solid #9e6a03;color:#d29922}
+.pill.sync{background:#21262d;border:1px solid #30363d;color:#8b949e}
+.pill.sync.ok{background:#10231a;border-color:#2ea043;color:#8ddb9b}
+.pill.sync.warn{background:#2d2208;border-color:#9e6a03;color:#d29922}
+.pill.sync.err{background:#2b1116;border-color:#f85149;color:#ffb6b0}
+.page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.page-head h2{font-size:18px;color:#f0f6fc}
+.page-head p{margin-top:4px}
+.empty-state{background:#161b22;border:1px dashed #30363d;border-radius:12px;padding:22px;color:#8b949e;font-size:13px;line-height:1.6}
+.empty-state strong{color:#f0f6fc}
+.split-actions{display:flex;gap:8px;flex-wrap:wrap}
+.stack{display:flex;flex-direction:column;gap:8px}
+.helper-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.muted{color:#8b949e}
+
+/* Login */
+.login-box{background:#161b22;border:1px solid #30363d;border-radius:16px;padding:36px;width:100%;max-width:430px}
+.login-box h1{font-size:20px;color:#f0f6fc;margin:6px 0 4px}
+.tab-row{display:flex;border:1px solid #30363d;border-radius:8px;overflow:hidden;margin-bottom:20px}
+.tab-btn{flex:1;padding:8px;background:none;border:none;color:#8b949e;font-size:13px;cursor:pointer;transition:all .2s}
+.tab-btn.active{background:#238636;color:#fff}
+.hint{font-size:11px;color:#484f58;margin-top:10px;text-align:center;line-height:1.5}
+
+/* Setup and settings */
+.setup-box{background:#161b22;border:1px solid #30363d;border-radius:16px;padding:32px;width:100%;max-width:620px}
+.note{background:#2d2208;border:1px solid #9e6a03;border-radius:8px;padding:10px 14px;font-size:12px;color:#d29922;margin-bottom:16px;line-height:1.5}
+.member-wrap{background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:8px}
+.member-wrap.bad{border-color:#f85149}
+.members-list{display:flex;flex-direction:column;gap:8px}
+.mrow{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;background:#161b22;border:1px solid #21262d;border-radius:8px;padding:10px}
+.mrow input{background:transparent;border:none;border-bottom:1px solid #30363d;padding:3px 0;color:#c9d1d9;font-size:13px;outline:none;width:100%}
+.mrow input::placeholder{color:#484f58}
+.cdot{width:18px;height:18px;border-radius:50%;cursor:pointer;border:2px solid #30363d;flex-shrink:0}
+.rmbtn{background:none;border:none;color:#f85149;cursor:pointer;font-size:15px;padding:2px 6px}
+.addbtn{background:none;border:1px dashed #30363d;border-radius:8px;color:#8b949e;font-size:13px;padding:8px;cursor:pointer;width:100%;margin-top:8px}
+.addbtn:hover{border-color:#58a6ff;color:#58a6ff}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-grid .field.full{grid-column:1/-1}
+
+/* App shell */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:#161b22;border-bottom:1px solid #30363d;flex-shrink:0;gap:14px;flex-wrap:wrap}
+.topbar h1{font-size:16px;color:#f0f6fc}
+.topbar-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.upill{display:flex;align-items:center;gap:6px;background:#21262d;border:1px solid #30363d;border-radius:20px;padding:4px 10px 4px 5px;font-size:12px}
+.udot{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
+.nav{display:flex;padding:0 16px;background:#161b22;border-bottom:1px solid #21262d;flex-shrink:0;flex-wrap:wrap}
+.nbtn{background:none;border:none;border-bottom:2px solid transparent;color:#8b949e;font-size:13px;padding:10px 12px;cursor:pointer;transition:all .2s}
+.nbtn.active{color:#58a6ff;border-bottom-color:#58a6ff}
+.nbtn:hover:not(.active):not(:disabled){color:#c9d1d9}
+.nbtn:disabled{opacity:.45;cursor:not-allowed}
+.pages{flex:1;overflow-y:auto}
+.page{display:none;padding:20px}
+.page.active{display:block}
+#page-office.active{display:block;padding:0;position:relative}
+
+/* Stats */
+.stats-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
+.sc{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:14px 16px}
+.sc .sv{font-size:26px;font-weight:700;color:#f0f6fc}
+.sc .sl{font-size:12px;color:#8b949e;margin-top:2px}
+
+/* Team grid */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.wcard{background:#161b22;border:1px solid #30363d;border-radius:12px;overflow:hidden;transition:border-color .2s,transform .15s}
+.wcard.clickable{cursor:pointer}
+.wcard.clickable:hover{border-color:#58a6ff;transform:translateY(-2px)}
+.whead{padding:14px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #21262d}
+.wav{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0}
+.winf h3{font-size:14px;color:#f0f6fc}
+.winf span{font-size:11px;color:#8b949e}
+.badge{margin-left:auto;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;flex-shrink:0}
+.b-on{background:#1a3824;color:#3fb950;border:1px solid #2ea043}
+.b-off{background:#2d2208;color:#d29922;border:1px solid #9e6a03}
+.b-ld{background:#21262d;color:#8b949e;border:1px solid #30363d}
+.b-err{background:#2b1116;color:#ffb6b0;border:1px solid #f85149}
+.wbody{padding:12px 16px}
+.mr{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #21262d;font-size:13px}
+.mr:last-child{border-bottom:none}
+.ml{color:#8b949e}
+.mv{color:#f0f6fc;font-weight:600}
+.mv.gr{color:#3fb950}
+.mv.or{color:#d29922}
+.mv.bl{color:#58a6ff}
+.mv.rd{color:#f85149}
+.pb-wrap{margin:8px 0 2px}
+.pb-lbl{display:flex;justify-content:space-between;font-size:11px;color:#8b949e;margin-bottom:3px}
+.pb{height:6px;background:#21262d;border-radius:3px;overflow:hidden}
+.pbf{height:100%;border-radius:3px;transition:width .6s}
+.asec{margin-top:8px}
+.attl{font-size:10px;color:#8b949e;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.aitem{font-size:12px;color:#8b949e;padding:3px 0;border-bottom:1px solid #21262d;display:flex;gap:5px;align-items:flex-start}
+.aitem:last-child{border-bottom:none}
+.more-btn{display:block;width:100%;text-align:center;font-size:12px;color:#58a6ff;padding:8px;border:none;border-top:1px solid #21262d;background:none}
+.minor-note{margin-top:10px;color:#8b949e;font-size:11px;line-height:1.5}
+
+/* Profile */
+.ph{display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.pav{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;flex-shrink:0}
+.pi h2{font-size:20px;color:#f0f6fc}
+.pi p{font-size:13px;color:#8b949e;margin-top:2px}
+.pi a{font-size:12px;text-decoration:none}
+.ps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:16px}
+.psc{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px;text-align:center}
+.psc .pv{font-size:22px;font-weight:700;color:#f0f6fc}
+.psc .pl{font-size:11px;color:#8b949e;margin-top:2px}
+.sec-ttl{font-size:12px;color:#8b949e;text-transform:uppercase;letter-spacing:.5px;margin:18px 0 10px}
+.tlist{display:flex;flex-direction:column;gap:8px}
+.titem{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:11px 14px;display:flex;gap:10px;align-items:flex-start}
+.ticon{font-size:14px;flex-shrink:0}
+.tbody h4{font-size:13px;color:#f0f6fc;margin-bottom:2px}
+.tbody span{font-size:11px;color:#8b949e}
+.tdone{border-color:#2ea04322;background:#0d1f1155}
+.topen{border-color:#9e6a0322;background:#1a130055}
+.summary-box{background:#1c2128;border:1px solid #30363d;border-radius:10px;padding:16px;margin-top:16px}
+.summary-box h4{font-size:12px;color:#58a6ff;margin-bottom:10px}
+.summary-box p{font-size:13px;color:#c9d1d9;line-height:1.7}
+.summary-box .muted{font-size:11px;margin-top:10px;display:block}
+
+/* Settings */
+.cfgsec{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:16px;margin-bottom:14px}
+.cfgsec h3{font-size:14px;color:#f0f6fc;margin-bottom:12px}
+
+/* Office */
+#office-canvas{width:100%;height:calc(100vh - 92px);display:block}
+#office-ui{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.72);padding:12px;border-radius:10px;color:#fff;font-size:12px;line-height:1.8;backdrop-filter:blur(8px);z-index:5;max-width:260px}
+#office-ui h3{font-size:14px;color:#58a6ff;margin-bottom:6px}
+#dialogue-box{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.97);color:#333;padding:18px;border-radius:14px;max-width:580px;width:92%;display:none;box-shadow:0 8px 30px rgba(0,0,0,.3);z-index:10}
+#dialogue-box h3{margin:0 0 8px;color:#d97356;font-size:15px}
+#dialogue-content{margin:8px 0;line-height:1.6;max-height:180px;overflow-y:auto;font-size:13px}
+.dlg-opt{background:#f0f0f0;border:2px solid #d97356;padding:10px;margin:6px 0;border-radius:8px;cursor:pointer;transition:all .2s;font-size:13px}
+.dlg-opt:hover{background:#d97356;color:#fff}
+.dlg-opt.disabled{opacity:.5;cursor:not-allowed}
+#interact-prompt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.8);color:#fff;padding:8px 18px;border-radius:20px;display:none;font-size:13px;z-index:5;pointer-events:none}
+.float-txt{position:absolute;color:#ff0;font-size:20px;font-weight:bold;pointer-events:none;animation:floatUp 2s ease-out forwards;text-shadow:2px 2px 4px rgba(0,0,0,.8);z-index:20}
+@keyframes floatUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-80px)}}
+
+@media(max-width:700px){
+  .form-grid{grid-template-columns:1fr}
+  .tgrid{grid-template-columns:1fr}
+  .stats-bar{grid-template-columns:1fr 1fr}
+  .topbar{padding:10px 14px}
+}
+</style>
+</head>
+<body>
+
+<div id="s-login" class="screen active">
+  <div class="login-box">
+    <div style="font-size:28px">🏢</div>
+    <h1>Dev Tracker</h1>
+    <p class="sub">A browser-only internal dashboard for GitHub delivery signals.</p>
+    <div class="tab-row">
+      <button class="tab-btn active" id="tab-mgr" onclick="switchTab('manager')">Manager</button>
+      <button class="tab-btn" id="tab-dev" onclick="switchTab('dev')">Developer</button>
+    </div>
+    <div id="lf-mgr">
+      <div class="field">
+        <label>Manager password</label>
+        <input type="password" id="mgr-pw" placeholder="Enter manager password" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+    </div>
+    <div id="lf-dev" style="display:none">
+      <div class="field">
+        <label>Configured display name</label>
+        <input type="text" id="dev-nm" placeholder="Must match the manager's team list" onkeydown="if(event.key==='Enter')doLogin()">
+        <small>Only teammates added during setup can sign in.</small>
+      </div>
+      <div class="field">
+        <label>Team password</label>
+        <input type="password" id="dev-pw" placeholder="Enter team password" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+    </div>
+    <div class="status-msg" id="lerr"></div>
+    <button class="btn-green" onclick="doLogin()">Sign in</button>
+    <p class="hint" id="login-hint">First time here? Sign in as Manager to validate the GitHub connection and finish setup.</p>
+  </div>
+</div>
+
+<div id="s-setup" class="screen">
+  <div class="setup-box">
+    <h2 style="font-size:18px;color:#58a6ff;margin-bottom:4px">First-time setup</h2>
+    <p class="sub" style="margin-bottom:16px">Validate the GitHub connection before anything is saved locally.</p>
+    <div class="note">The GitHub token still lives only in this browser's localStorage, but setup now checks the token, repositories, and member usernames before saving.</div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Manager password</label>
+        <input type="password" id="s-mpw" placeholder="Choose a strong password">
+      </div>
+      <div class="field">
+        <label>Team password</label>
+        <input type="password" id="s-dpw" placeholder="Shared with developers">
+      </div>
+      <div class="field full">
+        <label>GitHub Personal Access Token</label>
+        <input type="password" id="s-tok" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+        <small>Fine-grained token: Contents, Issues, Pull requests, and Metadata with read access.</small>
+      </div>
+      <div class="field">
+        <label>GitHub org or username</label>
+        <input type="text" id="s-org" placeholder="e.g. my-company">
+      </div>
+      <div class="field">
+        <label>Repositories</label>
+        <input type="text" id="s-rep" placeholder="backend-api, mobile-app">
+      </div>
+      <div class="field full">
+        <label>Team members</label>
+        <div id="setup-members-wrap" class="member-wrap">
+          <div id="setup-members-list" class="members-list"></div>
+        </div>
+        <button class="addbtn" onclick="addMember('setup')">+ Add member</button>
+        <small>Each developer signs in using the exact display name entered here.</small>
+      </div>
+    </div>
+    <div class="status-msg" id="setup-status"></div>
+    <button class="btn-green" id="setup-save-btn" onclick="saveSetup()">Validate, Save &amp; Open Dashboard</button>
+  </div>
+</div>
+
+<div id="s-app" class="screen">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:18px">🏢</span>
+      <div>
+        <h1>Dev Tracker</h1>
+        <p class="sub" style="font-size:11px">Dashboard-first internal view of recent GitHub delivery signals.</p>
+      </div>
+    </div>
+    <div class="topbar-r">
+      <div class="pill sync" id="sync-pill">No data loaded yet</div>
+      <div class="upill">
+        <div class="udot" id="top-dot">M</div>
+        <span id="top-name">Manager</span>
+      </div>
+      <button class="tbtn" id="refresh-btn" onclick="refreshAll()">Refresh</button>
+      <button class="tbtn red" onclick="doLogout()">Sign out</button>
+    </div>
+  </div>
+  <div class="nav">
+    <button class="nbtn active" id="nb-team" onclick="showPage('team')">Team Overview</button>
+    <button class="nbtn" id="nb-profile" style="display:none" onclick="showPage('profile')">My Profile</button>
+    <button class="nbtn" id="nb-office" onclick="showPage('office')" disabled>Team Space (beta)</button>
+    <button class="nbtn" id="nb-config" style="display:none" onclick="showPage('config')">Settings</button>
+  </div>
+  <div class="pages">
+    <div class="page active" id="page-team">
+      <div class="page-head">
+        <div>
+          <h2>Team Overview</h2>
+          <p class="sub" id="team-sub">Recent GitHub activity across the configured repositories.</p>
+        </div>
+        <div class="helper-row">
+          <span class="pill beta">Manager dashboard</span>
+          <span class="sub" id="last-updated-label">Last updated: not synced yet</span>
+        </div>
+      </div>
+      <div class="stats-bar" id="stats-bar"></div>
+      <div class="tgrid" id="tgrid"></div>
+    </div>
+
+    <div class="page" id="page-profile">
+      <div id="profile-wrap"></div>
+    </div>
+
+    <div class="page" id="page-office">
+      <div id="office-ui">
+        <h3>Team Space (beta)</h3>
+        <div>WASD to move</div>
+        <div>Arrow keys to look</div>
+        <div>E to inspect teammate data</div>
+        <div>SPACE to dance</div>
+        <div>ESC to close the dialog</div>
+        <div style="margin-top:8px;color:#8b949e;font-size:11px">This beta only uses synced dashboard data and preset prompts. Free-form AI chat is disabled in the standalone build.</div>
+      </div>
+      <canvas id="office-canvas"></canvas>
+      <div id="interact-prompt"></div>
+      <div id="dialogue-box">
+        <h3 id="dlg-name">Teammate</h3>
+        <div id="dialogue-content"></div>
+        <div id="dlg-options"></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-config">
+      <div class="page-head">
+        <div>
+          <h2>Settings</h2>
+          <p class="sub">Edit the local browser configuration without blowing away the whole dashboard.</p>
+        </div>
+        <div class="helper-row">
+          <span class="pill beta">Manager only</span>
+        </div>
+      </div>
+      <div class="cfgsec">
+        <h3>Connection and access</h3>
+        <div class="form-grid">
+          <div class="field">
+            <label>Manager password</label>
+            <input type="password" id="cfg-mpw" placeholder="Manager password">
+          </div>
+          <div class="field">
+            <label>Team password</label>
+            <input type="password" id="cfg-dpw" placeholder="Team password">
+          </div>
+          <div class="field full">
+            <label>GitHub token</label>
+            <input type="password" id="cfg-tok" placeholder="GitHub Personal Access Token">
+          </div>
+          <div class="field">
+            <label>GitHub org or username</label>
+            <input type="text" id="cfg-org" placeholder="e.g. my-company">
+          </div>
+          <div class="field">
+            <label>Repositories</label>
+            <input type="text" id="cfg-rep" placeholder="backend-api, mobile-app">
+          </div>
+        </div>
+      </div>
+      <div class="cfgsec">
+        <h3>Team members</h3>
+        <div id="cfg-members-wrap" class="member-wrap">
+          <div id="cfg-members-list" class="members-list"></div>
+        </div>
+        <button class="addbtn" onclick="addMember('settings')">+ Add member</button>
+      </div>
+      <div class="status-msg" id="cfg-status"></div>
+      <div class="split-actions">
+        <button class="tbtn" id="cfg-save-btn" onclick="saveSettings()">Validate &amp; Save Changes</button>
+        <button class="tbtn ghost" onclick="refreshAll()">Reload Dashboard Data</button>
+        <button class="btn-red" onclick="resetConfig()">Reset &amp; Reconfigure</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const KEY='dvt1';
+const CACHE_KEY='dvt1-cache';
+const COLS=['#58a6ff','#3fb950','#d29922','#f85149','#a371f7','#39d353','#ff7b72','#ffa657'];
+const OFFICE_OPTIONS=[
+  {id:'summary',label:'Give me the quick summary'},
+  {id:'shipped',label:'What shipped this week?'},
+  {id:'backlog',label:'What is still open?'},
+  {id:'focus',label:'What should I focus on next?'}
+];
+
+let cfg={};
+let session={};
+let loginMode='manager';
+let setupMembers=[];
+let settingsMembers=[];
+let summaryCache={};
+let detailCache={};
+let lastUpdatedAt='';
+let selectedProfileUsername='';
+let summaryLoadPromise=null;
+let summaryLoadToken=0;
+const detailInFlight=new Map();
+
+let officeInitialized=false;
+let officeScene=null;
+let officeCamera=null;
+let officeRenderer=null;
+let officeMouseX=0;
+let officeKeys={};
+let officeChars=[];
+let officeDesks=[];
+let officePlayer={position:new THREE.Vector3(0,1.6,5),isDancing:false};
+let nearbyChar=null;
+let currentChar=null;
+let dlgOpen=false;
+let officeEventsBound=false;
+let officeLoopStarted=false;
+
+function $(id){return document.getElementById(id)}
+function lsCfg(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return{}}}
+function wsCfg(next){localStorage.setItem(KEY,JSON.stringify(next))}
+function v(id){return $(id).value.trim()}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function escAttr(s){return esc(s).replace(/"/g,'&quot;')}
+function ini(name){return String(name||'?').split(' ').filter(Boolean).map(w=>w[0]).join('').toUpperCase().slice(0,2)||'?'}
+function cloneMember(member,index){return{name:(member?.name||'').trim(),username:(member?.username||'').trim(),color:member?.color||COLS[index%COLS.length]}}
+function newMember(index){return{name:'',username:'',color:COLS[index%COLS.length]}}
+function since7(){const d=new Date();d.setDate(d.getDate()-7);return d.toISOString()}
+function formatTimestamp(value){if(!value)return'not synced yet';return new Date(value).toLocaleString([], {dateStyle:'medium',timeStyle:'short'})}
+function cacheSignature(conf){return JSON.stringify({org:conf.org||'',repos:conf.repos||[],members:(conf.members||[]).map(m=>m.username.toLowerCase())})}
+function memberByUsername(username){return(cfg.members||[]).find(m=>m.username===username)||null}
+function getStore(scope){return scope==='setup'?setupMembers:settingsMembers}
+function listId(scope){return scope==='setup'?'setup-members-list':'cfg-members-list'}
+function wrapId(scope){return scope==='setup'?'setup-members-wrap':'cfg-members-wrap'}
+function statusId(scope){return scope==='setup'?'setup-status':'cfg-status'}
+function buttonId(scope){return scope==='setup'?'setup-save-btn':'cfg-save-btn'}
+function fieldIds(scope){return scope==='setup'?['s-mpw','s-dpw','s-tok','s-org','s-rep']:['cfg-mpw','cfg-dpw','cfg-tok','cfg-org','cfg-rep']}
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(el=>el.classList.remove('active'));
+  $(id).classList.add('active');
+}
+
+function setStatus(scope,message,tone='info'){
+  const el=$(statusId(scope));
+  el.className='status-msg'+(message?' '+tone:'');
+  el.style.display=message?'block':'none';
+  el.innerHTML=message||'';
+}
+
+function clearFormState(scope){
+  fieldIds(scope).forEach(id=>$(id).classList.remove('bad'));
+  $(wrapId(scope)).classList.remove('bad');
+  setStatus(scope,'');
+}
+
+function markFormInvalid(scope,keys){
+  const map=scope==='setup'
+    ?{mgrPw:'s-mpw',devPw:'s-dpw',token:'s-tok',org:'s-org',repos:'s-rep',members:'setup-members-wrap'}
+    :{mgrPw:'cfg-mpw',devPw:'cfg-dpw',token:'cfg-tok',org:'cfg-org',repos:'cfg-rep',members:'cfg-members-wrap'};
+  keys.forEach(key=>{
+    const id=map[key];
+    if(!id)return;
+    const el=$(id);
+    if(key==='members')el.classList.add('bad');
+    else el.classList.add('bad');
+  });
+}
+
+function toggleFormBusy(scope,busy){
+  $(buttonId(scope)).disabled=busy;
+}
+
+function renderMembers(scope){
+  const store=getStore(scope);
+  $(listId(scope)).innerHTML=store.map((member,index)=>`
+    <div class="mrow">
+      <input type="text" placeholder="Display name" value="${escAttr(member.name)}" oninput="updateMember('${scope}',${index},'name',this.value)">
+      <input type="text" placeholder="GitHub username" value="${escAttr(member.username)}" oninput="updateMember('${scope}',${index},'username',this.value)">
+      <div style="display:flex;gap:5px;align-items:center">
+        <div class="cdot" style="background:${member.color}" title="Change color" onclick="cycleColor('${scope}',${index})"></div>
+        <button class="rmbtn" onclick="removeMember('${scope}',${index})">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function updateMember(scope,index,key,value){
+  const store=getStore(scope);
+  store[index][key]=value;
+}
+
+function addMember(scope){
+  const store=getStore(scope);
+  store.push(newMember(store.length));
+  renderMembers(scope);
+}
+
+function removeMember(scope,index){
+  const store=getStore(scope);
+  if(store.length===1){
+    store[0]=newMember(0);
+  }else{
+    store.splice(index,1);
+  }
+  renderMembers(scope);
+}
+
+function cycleColor(scope,index){
+  const store=getStore(scope);
+  const current=COLS.indexOf(store[index].color);
+  store[index].color=COLS[(current+1)%COLS.length];
+  renderMembers(scope);
+}
+
+function loadPersistedCache(){
+  summaryCache={};
+  detailCache={};
+  lastUpdatedAt='';
+  try{
+    const raw=JSON.parse(localStorage.getItem(CACHE_KEY)||'{}');
+    if(raw.signature!==cacheSignature(cfg))return;
+    summaryCache=raw.summaryCache||{};
+    detailCache=raw.detailCache||{};
+    lastUpdatedAt=raw.savedAt||'';
+  }catch{}
+}
+
+function persistCache(){
+  if(!cfg.org)return;
+  localStorage.setItem(CACHE_KEY,JSON.stringify({
+    signature:cacheSignature(cfg),
+    summaryCache,
+    detailCache,
+    savedAt:lastUpdatedAt
+  }));
+}
+
+function clearRuntimeData(clearStorageToo=false){
+  summaryCache={};
+  detailCache={};
+  lastUpdatedAt='';
+  selectedProfileUsername=session.role==='dev'?session.memberUsername||'':'';
+  if(clearStorageToo)localStorage.removeItem(CACHE_KEY);
+}
+
+function setSyncPill(text,tone=''){
+  const el=$('sync-pill');
+  el.className='pill sync'+(tone?' '+tone:'');
+  el.textContent=text;
+}
+
+function updateLastUpdatedUI(){
+  $('last-updated-label').textContent='Last updated: '+formatTimestamp(lastUpdatedAt);
+  const hasData=Object.keys(summaryCache).length>0;
+  $('nb-office').disabled=!hasData;
+}
+
+function activityBadge(data){
+  if(data.repoErrors?.length&&data.actScore<=0)return{cls:'b-err',label:'Needs attention'};
+  if(data.actScore>=14||data.prsMerged>=2||data.closedIssues>=3)return{cls:'b-on',label:'Active'};
+  if(data.actScore<=2&&data.openIssues===0)return{cls:'b-ld',label:'Light week'};
+  return{cls:'b-off',label:'Steady'};
+}
+
+function switchTab(mode){
+  loginMode=mode;
+  $('tab-mgr').classList.toggle('active',mode==='manager');
+  $('tab-dev').classList.toggle('active',mode==='dev');
+  $('lf-mgr').style.display=mode==='manager'?'block':'none';
+  $('lf-dev').style.display=mode==='dev'?'block':'none';
+  $('lerr').style.display='none';
+}
+
+function showLoginError(message){
+  $('lerr').className='status-msg err';
+  $('lerr').textContent=message;
+  $('lerr').style.display='block';
+}
+
+function managerSession(){return{role:'manager',name:'Manager',color:'#58a6ff'}}
+
+function doLogin(){
+  cfg=lsCfg();
+  loadPersistedCache();
+  $('lerr').style.display='none';
+
+  if(loginMode==='manager'){
+    if(!cfg.mgrPw){goSetup();return;}
+    if(v('mgr-pw')!==cfg.mgrPw){
+      showLoginError('Incorrect manager password.');
+      return;
+    }
+    session=managerSession();
+    openApp();
+    return;
+  }
+
+  if(!cfg.mgrPw){
+    showLoginError('Ask a manager to complete setup before developers sign in.');
+    return;
+  }
+
+  const name=v('dev-nm');
+  const password=v('dev-pw');
+  if(!name){
+    showLoginError('Enter the display name configured by your manager.');
+    return;
+  }
+  if(password!==cfg.devPw){
+    showLoginError('Incorrect team password.');
+    return;
+  }
+  const match=(cfg.members||[]).find(member=>member.name.toLowerCase()===name.toLowerCase());
+  if(!match||!match.username){
+    showLoginError('That developer name is not configured. Ask your manager to add you first.');
+    return;
+  }
+  session={role:'dev',name:match.name,color:match.color,memberUsername:match.username};
+  openApp();
+}
+
+function goSetup(){
+  clearFormState('setup');
+  if(!setupMembers.length)setupMembers=[newMember(0),newMember(1)];
+  renderMembers('setup');
+  show('s-setup');
+}
+
+function collectForm(scope){
+  const prefix=scope==='setup'?'s':'cfg';
+  const rawMembers=getStore(scope).map((member,index)=>cloneMember(member,index));
+  const activeMembers=rawMembers.filter(member=>member.name||member.username);
+  return{
+    mgrPw:v(prefix+'-mpw'),
+    devPw:v(prefix+'-dpw'),
+    token:v(prefix+'-tok'),
+    org:v(prefix+'-org'),
+    repos:v(prefix+'-rep').split(',').map(repo=>repo.trim()).filter(Boolean),
+    members:activeMembers
+  };
+}
+
+async function gh(path,token=cfg.token){
+  const response=await fetch('https://api.github.com'+path,{
+    headers:{
+      Authorization:'Bearer '+token,
+      Accept:'application/vnd.github+json',
+      'X-GitHub-Api-Version':'2022-11-28'
+    }
+  });
+  let payload=null;
+  try{payload=await response.json()}catch{payload=null}
+  if(!response.ok){
+    const message=payload?.message||(`${response.status} ${response.statusText}`);
+    throw new Error(message);
+  }
+  return payload;
+}
+
+async function validateConfig(scope){
+  clearFormState(scope);
+  const candidate=collectForm(scope);
+  const issues=[];
+  const invalidKeys=new Set();
+
+  if(!candidate.mgrPw){issues.push('Manager password is required.');invalidKeys.add('mgrPw')}
+  if(!candidate.devPw){issues.push('Team password is required.');invalidKeys.add('devPw')}
+  if(!candidate.token){issues.push('GitHub token is required.');invalidKeys.add('token')}
+  if(!candidate.org){issues.push('GitHub org or username is required.');invalidKeys.add('org')}
+  if(!candidate.repos.length){issues.push('At least one repository is required.');invalidKeys.add('repos')}
+  if(!candidate.members.length){issues.push('Add at least one team member.');invalidKeys.add('members')}
+
+  const seenNames=new Set();
+  const seenUsernames=new Set();
+  candidate.members.forEach(member=>{
+    if(!member.name||!member.username){
+      issues.push('Every team member needs both a display name and GitHub username.');
+      invalidKeys.add('members');
+    }
+    const nameKey=member.name.toLowerCase();
+    const userKey=member.username.toLowerCase();
+    if(member.name&&seenNames.has(nameKey)){
+      issues.push(`Display name "${member.name}" is duplicated.`);
+      invalidKeys.add('members');
+    }
+    if(member.username&&seenUsernames.has(userKey)){
+      issues.push(`GitHub username "@${member.username}" is duplicated.`);
+      invalidKeys.add('members');
+    }
+    seenNames.add(nameKey);
+    seenUsernames.add(userKey);
+  });
+
+  if(issues.length){
+    markFormInvalid(scope,[...invalidKeys]);
+    setStatus(scope,issues.map(issue=>'• '+esc(issue)).join('<br>'),'err');
+    return null;
+  }
+
+  toggleFormBusy(scope,true);
+  setStatus(scope,'Validating token, repositories, and team members against GitHub…','info');
+
+  try{
+    await gh('/user',candidate.token);
+    const repoIssues=[];
+    for(const repo of candidate.repos){
+      try{
+        await gh('/repos/'+encodeURIComponent(candidate.org)+'/'+encodeURIComponent(repo),candidate.token);
+      }catch(error){
+        repoIssues.push(`Repository "${repo}" could not be validated: ${error.message}`);
+      }
+    }
+
+    const memberIssues=[];
+    for(const member of candidate.members){
+      try{
+        await gh('/users/'+encodeURIComponent(member.username),candidate.token);
+      }catch(error){
+        memberIssues.push(`GitHub username "@${member.username}" could not be validated: ${error.message}`);
+      }
+    }
+
+    if(repoIssues.length||memberIssues.length){
+      if(repoIssues.length)invalidKeys.add('repos');
+      if(memberIssues.length)invalidKeys.add('members');
+      markFormInvalid(scope,[...invalidKeys]);
+      setStatus(scope,[...repoIssues,...memberIssues].map(issue=>'• '+esc(issue)).join('<br>'),'err');
+      return null;
+    }
+
+    const normalized={
+      mgrPw:candidate.mgrPw,
+      devPw:candidate.devPw,
+      token:candidate.token,
+      org:candidate.org,
+      repos:[...new Set(candidate.repos)],
+      members:candidate.members.map((member,index)=>cloneMember(member,index)),
+      validatedAt:new Date().toISOString()
+    };
+    setStatus(scope,'Validation succeeded. The local configuration is ready to save.','ok');
+    return normalized;
+  }catch(error){
+    invalidKeys.add('token');
+    markFormInvalid(scope,[...invalidKeys]);
+    setStatus(scope,'• GitHub validation failed: '+esc(error.message),'err');
+    return null;
+  }finally{
+    toggleFormBusy(scope,false);
+  }
+}
+
+async function saveSetup(){
+  const next=await validateConfig('setup');
+  if(!next)return;
+  cfg=next;
+  wsCfg(cfg);
+  clearRuntimeData(true);
+  loadPersistedCache();
+  settingsMembers=(cfg.members||[]).map((member,index)=>cloneMember(member,index));
+  session=managerSession();
+  openApp();
+}
+
+async function saveSettings(){
+  const next=await validateConfig('settings');
+  if(!next)return;
+  const signatureChanged=cacheSignature(cfg)!==cacheSignature(next);
+  cfg=next;
+  wsCfg(cfg);
+  settingsMembers=(cfg.members||[]).map((member,index)=>cloneMember(member,index));
+  if(signatureChanged)clearRuntimeData(true);
+  else clearRuntimeData(false);
+  officeInitialized=false;
+  populateSettingsForm();
+  openApp();
+}
+
+function populateSettingsForm(){
+  $('cfg-mpw').value=cfg.mgrPw||'';
+  $('cfg-dpw').value=cfg.devPw||'';
+  $('cfg-tok').value=cfg.token||'';
+  $('cfg-org').value=cfg.org||'';
+  $('cfg-rep').value=(cfg.repos||[]).join(', ');
+  settingsMembers=(cfg.members||[]).length?(cfg.members||[]).map((member,index)=>cloneMember(member,index)):[newMember(0)];
+  renderMembers('settings');
+}
+
+function openApp(){
+  cfg=lsCfg();
+  loadPersistedCache();
+  populateSettingsForm();
+  show('s-app');
+
+  const isManager=session.role==='manager';
+  $('top-name').textContent=session.name;
+  $('top-dot').style.background=session.color||'#58a6ff';
+  $('top-dot').textContent=ini(session.name).slice(0,1);
+  $('nb-config').style.display=isManager?'':'none';
+  $('nb-team').style.display=isManager?'':'none';
+  $('nb-profile').style.display=isManager?(selectedProfileUsername?'':'none'):'';
+  if(!isManager)$('nb-profile').style.display='';
+  if(!selectedProfileUsername&&session.role==='dev')selectedProfileUsername=session.memberUsername||'';
+
+  updateLastUpdatedUI();
+  if(Object.keys(summaryCache).length){
+    renderTeamPage();
+    if(selectedProfileUsername)renderProfileFor(selectedProfileUsername);
+    setSyncPill('Using cached snapshot from '+formatTimestamp(lastUpdatedAt),'ok');
+  }else{
+    setSyncPill('Loading GitHub data…','warn');
+    renderTeamLoadingState();
+    renderProfileFor(selectedProfileUsername||session.memberUsername||'');
+  }
+
+  showPage(isManager?'team':'profile');
+  loadTeamSummary({background:Object.keys(summaryCache).length>0});
+}
+
+function showPage(page){
+  let nextPage=page;
+  if(session.role!=='manager'&&page==='team')nextPage='profile';
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nbtn').forEach(el=>el.classList.remove('active'));
+  $('page-'+nextPage).classList.add('active');
+  const nav=$('nb-'+nextPage);
+  if(nav)nav.classList.add('active');
+
+  if(nextPage==='profile'){
+    renderProfileFor(selectedProfileUsername||session.memberUsername||'');
+    if(selectedProfileUsername)loadMemberDetails(selectedProfileUsername);
+  }
+  if(nextPage==='office'){
+    if(!officeInitialized)initOffice();
+    if(!Object.keys(summaryCache).length)loadTeamSummary({background:false});
+  }
+}
+
+function doLogout(){
+  session={};
+  selectedProfileUsername='';
+  $('mgr-pw').value='';
+  $('dev-pw').value='';
+  $('dev-nm').value='';
+  setSyncPill('Signed out','');
+  show('s-login');
+}
+
+function resetConfig(){
+  if(!confirm('Reset the local config and return to first-time setup?'))return;
+  localStorage.removeItem(KEY);
+  localStorage.removeItem(CACHE_KEY);
+  cfg={};
+  session={};
+  summaryCache={};
+  detailCache={};
+  lastUpdatedAt='';
+  setupMembers=[newMember(0),newMember(1)];
+  renderMembers('setup');
+  goSetup();
+}
+
+async function mapWithConcurrency(items,limit,worker){
+  const results=new Array(items.length);
+  let index=0;
+  async function runner(){
+    while(index<items.length){
+      const current=index++;
+      results[current]=await worker(items[current],current);
+    }
+  }
+  const runners=Array.from({length:Math.min(limit,items.length)||1},()=>runner());
+  await Promise.all(runners);
+  return results;
+}
+
+function sortByDate(items,key){
+  return [...items].sort((a,b)=>new Date(b[key]||0)-new Date(a[key]||0));
+}
+
+function buildActScore(data){
+  return(data.commits*2)+(data.prsOpened*3)+(data.prsMerged*5)+(data.closedIssues*3)+(data.discussionCount||0)+(data.mergedOthers||0)*4;
+}
+
+async function fetchMemberSummary(member){
+  const since=since7();
+  const sinceDate=new Date(since);
+  let commits=0;
+  let prsOpened=0;
+  let prsMerged=0;
+  let closedIssues=0;
+  let openIssues=0;
+  const recentPRs=[];
+  const repoErrors=[];
+
+  for(const repo of cfg.repos||[]){
+    const base='/repos/'+encodeURIComponent(cfg.org)+'/'+encodeURIComponent(repo);
+    const results=await Promise.allSettled([
+      gh(base+'\/commits?author='+encodeURIComponent(member.username)+'&since='+encodeURIComponent(since)+'&per_page=40'),
+      gh(base+'\/pulls?state=all&creator='+encodeURIComponent(member.username)+'&per_page=30'),
+      gh(base+'\/issues?state=closed&assignee='+encodeURIComponent(member.username)+'&since='+encodeURIComponent(since)+'&per_page=30'),
+      gh(base+'\/issues?state=open&assignee='+encodeURIComponent(member.username)+'&per_page=30')
+    ]);
+    const [commitsResult,prsResult,closedResult,openResult]=results;
+
+    if(commitsResult.status==='fulfilled'&&Array.isArray(commitsResult.value))commits+=commitsResult.value.length;
+    else if(commitsResult.status==='rejected')repoErrors.push(repo+' commits');
+
+    if(prsResult.status==='fulfilled'&&Array.isArray(prsResult.value)){
+      const weeklyPRs=prsResult.value.filter(pr=>new Date(pr.created_at)>=sinceDate);
+      prsOpened+=weeklyPRs.length;
+      prsMerged+=weeklyPRs.filter(pr=>pr.merged_at).length;
+      weeklyPRs.forEach(pr=>recentPRs.push({...pr,repo}));
+    }else if(prsResult.status==='rejected')repoErrors.push(repo+' PRs');
+
+    if(closedResult.status==='fulfilled'&&Array.isArray(closedResult.value)){
+      closedIssues+=closedResult.value.filter(issue=>!issue.pull_request).length;
+    }else if(closedResult.status==='rejected')repoErrors.push(repo+' closed issues');
+
+    if(openResult.status==='fulfilled'&&Array.isArray(openResult.value)){
+      openIssues+=openResult.value.filter(issue=>!issue.pull_request).length;
+    }else if(openResult.status==='rejected')repoErrors.push(repo+' open issues');
+  }
+
+  const pct=(closedIssues+openIssues)>0?Math.round((closedIssues/(closedIssues+openIssues))*100):0;
+  const summary={
+    member,
+    commits,
+    prsOpened,
+    prsMerged,
+    closedIssues,
+    openIssues,
+    pct,
+    recentPRs:sortByDate(recentPRs,'created_at').slice(0,3),
+    discussionCount:0,
+    mergedOthers:0,
+    closedOthers:0,
+    repoErrors
+  };
+  summary.actScore=buildActScore(summary);
+  return summary;
+}
+
+async function fetchMemberDetails(member){
+  const summary=summaryCache[member.username]||await fetchMemberSummary(member);
+  const since=since7();
+  const sinceDate=new Date(since);
+  let discussionCount=0;
+  let mergedOthers=0;
+  let closedOthers=0;
+  const closedList=[];
+  const openList=[];
+  const recentPRs=[];
+  const mergedOthersList=[];
+  const closedOthersList=[];
+  const repoErrors=[...(summary.repoErrors||[])];
+
+  for(const repo of cfg.repos||[]){
+    const base='/repos/'+encodeURIComponent(cfg.org)+'/'+encodeURIComponent(repo);
+    const results=await Promise.allSettled([
+      gh(base+'\/pulls?state=all&creator='+encodeURIComponent(member.username)+'&per_page=40'),
+      gh(base+'\/issues?state=closed&assignee='+encodeURIComponent(member.username)+'&since='+encodeURIComponent(since)+'&per_page=40'),
+      gh(base+'\/issues?state=open&assignee='+encodeURIComponent(member.username)+'&per_page=40'),
+      gh(base+'\/issues/comments?since='+encodeURIComponent(since)+'&per_page=60'),
+      gh(base+'\/pulls/comments?since='+encodeURIComponent(since)+'&per_page=60'),
+      gh(base+'\/pulls?state=closed&per_page=40'),
+      gh(base+'\/issues?state=closed&since='+encodeURIComponent(since)+'&per_page=40')
+    ]);
+    const [prsResult,closedResult,openResult,issueCommentsResult,pullCommentsResult,allClosedPrsResult,allClosedIssuesResult]=results;
+
+    if(prsResult.status==='fulfilled'&&Array.isArray(prsResult.value)){
+      const weeklyPRs=prsResult.value.filter(pr=>new Date(pr.created_at)>=sinceDate);
+      weeklyPRs.forEach(pr=>recentPRs.push({...pr,repo}));
+    }else if(prsResult.status==='rejected')repoErrors.push(repo+' profile PRs');
+
+    if(closedResult.status==='fulfilled'&&Array.isArray(closedResult.value)){
+      closedResult.value.filter(issue=>!issue.pull_request).forEach(issue=>closedList.push({...issue,repo}));
+    }else if(closedResult.status==='rejected')repoErrors.push(repo+' completed tasks');
+
+    if(openResult.status==='fulfilled'&&Array.isArray(openResult.value)){
+      openResult.value.filter(issue=>!issue.pull_request).forEach(issue=>openList.push({...issue,repo}));
+    }else if(openResult.status==='rejected')repoErrors.push(repo+' pending tasks');
+
+    if(issueCommentsResult.status==='fulfilled'&&Array.isArray(issueCommentsResult.value)){
+      discussionCount+=issueCommentsResult.value.filter(comment=>comment.user?.login===member.username).length;
+    }else if(issueCommentsResult.status==='rejected')repoErrors.push(repo+' issue comments');
+
+    if(pullCommentsResult.status==='fulfilled'&&Array.isArray(pullCommentsResult.value)){
+      discussionCount+=pullCommentsResult.value.filter(comment=>comment.user?.login===member.username).length;
+    }else if(pullCommentsResult.status==='rejected')repoErrors.push(repo+' pull comments');
+
+    if(allClosedPrsResult.status==='fulfilled'&&Array.isArray(allClosedPrsResult.value)){
+      const merged=allClosedPrsResult.value.filter(pr=>pr.merged_at&&pr.merged_by?.login===member.username&&pr.user?.login!==member.username&&new Date(pr.merged_at)>=sinceDate);
+      mergedOthers+=merged.length;
+      merged.slice(0,4).forEach(pr=>mergedOthersList.push({title:pr.title,number:pr.number,author:pr.user?.login||'unknown',repo,merged_at:pr.merged_at}));
+    }
+
+    if(allClosedIssuesResult.status==='fulfilled'&&Array.isArray(allClosedIssuesResult.value)){
+      const closedByMember=allClosedIssuesResult.value.filter(issue=>!issue.pull_request&&issue.closed_by?.login===member.username&&issue.assignees?.every(assignee=>assignee.login!==member.username)&&new Date(issue.closed_at)>=sinceDate);
+      closedOthers+=closedByMember.length;
+      closedByMember.slice(0,4).forEach(issue=>closedOthersList.push({title:issue.title,number:issue.number,repo,closed_at:issue.closed_at}));
+    }
+  }
+
+  const detail={
+    ...summary,
+    discussionCount,
+    mergedOthers,
+    closedOthers,
+    recentPRs:sortByDate(recentPRs,'created_at').slice(0,5),
+    closedList:sortByDate(closedList,'closed_at').slice(0,6),
+    openList:sortByDate(openList,'created_at').slice(0,6),
+    mergedOthersList:sortByDate(mergedOthersList,'merged_at').slice(0,4),
+    closedOthersList:sortByDate(closedOthersList,'closed_at').slice(0,4),
+    repoErrors:[...new Set(repoErrors)]
+  };
+  detail.actScore=buildActScore(detail);
+  return detail;
+}
+
+function renderTeamLoadingState(){
+  $('stats-bar').innerHTML='';
+  $('tgrid').innerHTML=(cfg.members||[]).map(member=>`
+    <div class="wcard">
+      <div class="whead">
+        <div class="wav" style="background:${member.color}">${ini(member.name)}</div>
+        <div class="winf"><h3>${esc(member.name)}</h3><span>@${esc(member.username)}</span></div>
+        <span class="badge b-ld">Loading</span>
+      </div>
+      <div class="wbody" style="padding:20px;color:#8b949e;font-size:13px">Fetching recent GitHub activity…</div>
+    </div>`).join('');
+}
+
+function renderTeamPage(){
+  if(session.role!=='manager')return;
+  const values=Object.values(summaryCache);
+  updateLastUpdatedUI();
+
+  if(!values.length){
+    $('stats-bar').innerHTML='';
+    $('tgrid').innerHTML=`<div class="empty-state"><strong>No team data yet.</strong><br>Run a refresh after setup validation completes.</div>`;
+    return;
+  }
+
+  const totalCommits=values.reduce((sum,item)=>sum+item.commits,0);
+  const totalMerged=values.reduce((sum,item)=>sum+item.prsMerged,0);
+  const totalClosed=values.reduce((sum,item)=>sum+item.closedIssues,0);
+  const totalOpen=values.reduce((sum,item)=>sum+item.openIssues,0);
+  const top=[...values].sort((a,b)=>b.actScore-a.actScore)[0];
+
+  $('stats-bar').innerHTML=`
+    <div class="sc"><div class="sv">${totalCommits}</div><div class="sl">Commits this week</div></div>
+    <div class="sc"><div class="sv">${totalMerged}</div><div class="sl">PRs merged</div></div>
+    <div class="sc"><div class="sv">${totalClosed}</div><div class="sl">Issues closed</div></div>
+    <div class="sc"><div class="sv">${totalOpen}</div><div class="sl">Open issues</div></div>
+    <div class="sc"><div class="sv" style="font-size:18px;color:${top.member.color}">${esc(top.member.name.split(' ')[0])}</div><div class="sl">Top contributor</div></div>`;
+
+  $('tgrid').innerHTML=values.map(data=>{
+    const badge=activityBadge(data);
+    return `
+      <div class="wcard clickable" onclick="viewProfile('${data.member.username}')">
+        <div class="whead">
+          <div class="wav" style="background:${data.member.color}">${ini(data.member.name)}</div>
+          <div class="winf"><h3>${esc(data.member.name)}</h3><span>@${esc(data.member.username)}</span></div>
+          <span class="badge ${badge.cls}">${badge.label}</span>
+        </div>
+        <div class="wbody">
+          <div class="mr"><span class="ml">Commits</span><span class="mv bl">${data.commits}</span></div>
+          <div class="mr"><span class="ml">PRs opened / merged</span><span class="mv">${data.prsOpened} / <span class="gr">${data.prsMerged}</span></span></div>
+          <div class="mr"><span class="ml">Closed issues</span><span class="mv gr">${data.closedIssues}</span></div>
+          <div class="mr"><span class="ml">Open issues</span><span class="mv ${data.openIssues>3?'rd':'or'}">${data.openIssues}</span></div>
+          <div class="pb-wrap">
+            <div class="pb-lbl"><span>Task completion</span><span>${data.pct}%</span></div>
+            <div class="pb"><div class="pbf" style="width:${data.pct}%;background:${data.member.color}"></div></div>
+          </div>
+          ${data.recentPRs.length?`<div class="asec"><div class="attl">Recent pull requests</div>${data.recentPRs.map(pr=>`<div class="aitem"><span>${pr.merged_at?'✅':pr.state==='open'?'🟢':'🔴'}</span><span>#${pr.number} ${esc(pr.title.slice(0,52))}${pr.title.length>52?'…':''}</span></div>`).join('')}</div>`:''}
+          ${data.repoErrors?.length?`<div class="minor-note">Partial data: ${esc(data.repoErrors.slice(0,3).join(', '))}${data.repoErrors.length>3?'…':''}</div>`:''}
+        </div>
+        <button class="more-btn">View profile details →</button>
+      </div>`;
+  }).join('');
+}
+
+async function loadTeamSummary({background=false}={}){
+  if(summaryLoadPromise)return summaryLoadPromise;
+  const currentToken=++summaryLoadToken;
+  $('refresh-btn').disabled=true;
+  if(!background||!Object.keys(summaryCache).length){
+    setSyncPill('Loading GitHub data…','warn');
+    if(session.role==='manager'&&!Object.keys(summaryCache).length)renderTeamLoadingState();
+  }else{
+    setSyncPill('Refreshing GitHub data…','warn');
+  }
+
+  summaryLoadPromise=(async()=>{
+    try{
+      const members=cfg.members||[];
+      const results=await mapWithConcurrency(members,2,member=>fetchMemberSummary(member));
+      if(currentToken!==summaryLoadToken)return;
+      summaryCache={};
+      results.forEach(result=>{summaryCache[result.member.username]=result});
+      lastUpdatedAt=new Date().toISOString();
+      persistCache();
+      updateLastUpdatedUI();
+      if(session.role==='manager')renderTeamPage();
+      if(selectedProfileUsername)renderProfileFor(selectedProfileUsername);
+      setSyncPill('Synced at '+formatTimestamp(lastUpdatedAt),'ok');
+    }catch(error){
+      setSyncPill('Refresh failed: '+error.message,'err');
+      if(session.role==='manager'&&!Object.keys(summaryCache).length){
+        $('tgrid').innerHTML=`<div class="empty-state"><strong>Could not load team data.</strong><br>${esc(error.message)}</div>`;
+      }
+    }finally{
+      $('refresh-btn').disabled=false;
+      summaryLoadPromise=null;
+    }
+  })();
+
+  return summaryLoadPromise;
+}
+
+function refreshAll(){
+  detailCache={};
+  persistCache();
+  loadTeamSummary({background:Object.keys(summaryCache).length>0});
+  if(selectedProfileUsername)renderProfileFor(selectedProfileUsername);
+}
+
+function buildPerformanceSummary(data){
+  if(!data)return'No synced GitHub activity is available yet.';
+  const pace=data.actScore>=14?'strong':'steady';
+  const mergeText=data.prsMerged?`${data.prsMerged} of ${data.prsOpened} opened PRs are already merged`:`${data.prsOpened} PRs were opened and are still working through the pipeline`;
+  const issueText=(data.closedIssues||data.openIssues)
+    ?`They closed ${data.closedIssues} assigned issue${data.closedIssues===1?'':'s'} and currently have ${data.openIssues} still open, putting task completion at ${data.pct}%.`
+    :'There are no tracked assigned issues in the configured repositories right now.';
+  const discussionText=(data.discussionCount||0)>0
+    ?`They also contributed ${data.discussionCount} discussion comment${data.discussionCount===1?'':'s'} this week.`
+    :'Discussion activity is light in the current snapshot.';
+  return `${data.member.name} had a ${pace} week with ${data.commits} commits, and ${mergeText}. ${issueText} ${discussionText}`.trim();
+}
+
+function renderProfileFor(username){
+  const wrap=$('profile-wrap');
+  if(!username){
+    wrap.innerHTML=`<div class="empty-state"><strong>No profile selected yet.</strong><br>Select a teammate from the team overview to inspect their details.</div>`;
+    return;
+  }
+
+  const summary=summaryCache[username];
+  const detail=detailCache[username];
+  const data=detail||summary;
+  const isOwnProfile=session.role==='dev';
+
+  if(!summary){
+    wrap.innerHTML=`<div class="empty-state"><strong>Syncing profile data…</strong><br>The dashboard is still collecting the latest GitHub summary for ${esc(username)}.</div>`;
+    return;
+  }
+
+  const badge=activityBadge(data);
+  wrap.innerHTML=`
+    <div style="margin-bottom:16px">
+      ${session.role==='manager'?'<button class="tbtn ghost" onclick="showPage(\'team\')">← Back to team</button>':''}
+    </div>
+    <div class="ph">
+      <div class="pav" style="background:${data.member.color}">${ini(data.member.name)}</div>
+      <div class="pi">
+        <h2>${esc(data.member.name)}</h2>
+        <p>@${esc(data.member.username)} · ${badge.label}</p>
+        <a href="https://github.com/${escAttr(data.member.username)}" target="_blank" rel="noreferrer">View on GitHub ↗</a>
+      </div>
+    </div>
+    <div class="ps-grid">
+      <div class="psc"><div class="pv">${data.commits}</div><div class="pl">Commits</div></div>
+      <div class="psc"><div class="pv">${data.prsOpened}</div><div class="pl">PRs opened</div></div>
+      <div class="psc"><div class="pv gr">${data.prsMerged}</div><div class="pl">PRs merged</div></div>
+      <div class="psc"><div class="pv gr">${data.closedIssues}</div><div class="pl">Closed</div></div>
+      <div class="psc"><div class="pv ${data.openIssues>3?'rd':'or'}">${data.openIssues}</div><div class="pl">Open</div></div>
+      <div class="psc"><div class="pv bl">${detail?detail.discussionCount:0}</div><div class="pl">Discussion</div></div>
+      ${detail&&detail.mergedOthers?`<div class="psc"><div class="pv">${detail.mergedOthers}</div><div class="pl">Merged others</div></div>`:''}
+      ${detail&&detail.closedOthers?`<div class="psc"><div class="pv">${detail.closedOthers}</div><div class="pl">Closed for others</div></div>`:''}
+    </div>
+    <div class="pb-wrap">
+      <div class="pb-lbl"><span>Task completion</span><span>${data.pct}%</span></div>
+      <div class="pb" style="height:8px"><div class="pbf" style="width:${data.pct}%;background:${data.member.color};height:8px"></div></div>
+    </div>
+    <div class="summary-box">
+      <h4>Local weekly summary</h4>
+      <p>${esc(buildPerformanceSummary(data))}</p>
+      <span class="muted">AI coaching is disabled in this standalone build. This summary is generated locally from the synced GitHub data instead.</span>
+    </div>
+    ${detail?renderDetailSections(detail,isOwnProfile):`<div class="cfgsec" style="margin-top:16px"><h3>Loading deeper detail</h3><p class="sub">Pull request lists, issue lists, and discussion totals are loading now.</p></div>`}
+  `;
+}
+
+function renderDetailSections(detail,isOwnProfile){
+  return `
+    ${detail.recentPRs.length?`<div class="sec-ttl">${isOwnProfile?'Your pull requests':'Pull requests this week'}</div><div class="tlist">${detail.recentPRs.map(pr=>`
+      <div class="titem ${pr.merged_at?'tdone':'topen'}">
+        <span class="ticon">${pr.merged_at?'✅':pr.state==='open'?'🟢':'🔴'}</span>
+        <div class="tbody"><h4>#${pr.number} ${esc(pr.title)}</h4><span>${esc(pr.repo)} · ${pr.merged_at?'Merged':'Opened'} · ${new Date(pr.created_at).toLocaleDateString()}</span></div>
+      </div>`).join('')}</div>`:''}
+    ${detail.closedList.length?`<div class="sec-ttl">${isOwnProfile?'Completed tasks':'Completed tasks'}</div><div class="tlist">${detail.closedList.map(issue=>`
+      <div class="titem tdone">
+        <span class="ticon">✅</span>
+        <div class="tbody"><h4>#${issue.number} ${esc(issue.title)}</h4><span>${esc(issue.repo)} · Closed ${new Date(issue.closed_at||issue.updated_at).toLocaleDateString()}</span></div>
+      </div>`).join('')}</div>`:''}
+    ${detail.openList.length?`<div class="sec-ttl">${isOwnProfile?'Pending tasks':'Pending tasks'}</div><div class="tlist">${detail.openList.map(issue=>`
+      <div class="titem topen">
+        <span class="ticon">🔖</span>
+        <div class="tbody"><h4>#${issue.number} ${esc(issue.title)}</h4><span>${esc(issue.repo)} · Opened ${new Date(issue.created_at).toLocaleDateString()}</span></div>
+      </div>`).join('')}</div>`:''}
+    ${detail.mergedOthersList?.length?`<div class="sec-ttl">Others' PRs merged</div><div class="tlist">${detail.mergedOthersList.map(pr=>`
+      <div class="titem tdone">
+        <span class="ticon">🔗</span>
+        <div class="tbody"><h4>#${pr.number} ${esc(pr.title)}</h4><span>${esc(pr.repo)} · by @${esc(pr.author)}</span></div>
+      </div>`).join('')}</div>`:''}
+    ${detail.closedOthersList?.length?`<div class="sec-ttl">Others' issues closed</div><div class="tlist">${detail.closedOthersList.map(issue=>`
+      <div class="titem tdone">
+        <span class="ticon">🗂</span>
+        <div class="tbody"><h4>#${issue.number} ${esc(issue.title)}</h4><span>${esc(issue.repo)}</span></div>
+      </div>`).join('')}</div>`:''}
+    ${detail.repoErrors?.length?`<div class="summary-box"><h4>Partial data notice</h4><p>${esc('Some detailed sections could not be loaded: '+detail.repoErrors.slice(0,5).join(', ')+(detail.repoErrors.length>5?'…':''))}</p></div>`:''}
+  `;
+}
+
+function viewProfile(username){
+  if(session.role!=='manager'&&session.memberUsername!==username)return;
+  selectedProfileUsername=username;
+  $('nb-profile').style.display='';
+  showPage('profile');
+  loadMemberDetails(username);
+}
+
+async function loadMemberDetails(username){
+  if(!username)return null;
+  if(detailCache[username])return detailCache[username];
+  if(detailInFlight.has(username))return detailInFlight.get(username);
+  const member=memberByUsername(username);
+  if(!member)return null;
+
+  const task=(async()=>{
+    try{
+      const detail=await fetchMemberDetails(member);
+      detailCache[username]=detail;
+      persistCache();
+      if(selectedProfileUsername===username&&$('page-profile').classList.contains('active'))renderProfileFor(username);
+      return detail;
+    }finally{
+      detailInFlight.delete(username);
+    }
+  })();
+
+  detailInFlight.set(username,task);
+  return task;
+}
+
+function buildOfficeGreeting(summary){
+  if(!summary)return'Team data is still syncing. Come back after the dashboard finishes the first refresh.';
+  return `${summary.member.name} has ${summary.commits} commits, ${summary.prsOpened} opened PRs, ${summary.prsMerged} merged PRs, and ${summary.openIssues} open issues in the current snapshot.`;
+}
+
+function officePromptText(type){
+  const map={summary:'Give me the quick summary',shipped:'What shipped this week?',backlog:'What is still open?',focus:'What should I focus on next?'};
+  return map[type]||'Tell me more';
+}
+
+async function buildOfficeResponse(type,username){
+  const summary=summaryCache[username];
+  if(!summary)return'The dashboard has not finished syncing this teammate yet.';
+  if(type==='summary')return buildPerformanceSummary(summary);
+
+  const detail=await loadMemberDetails(username);
+  const data=detail||summary;
+  if(type==='shipped'){
+    if(data.recentPRs?.length){
+      const merged=data.recentPRs.filter(pr=>pr.merged_at);
+      if(merged.length)return `The clearest shipped work is ${merged.slice(0,2).map(pr=>'#'+pr.number+' '+pr.title).join(' and ')}. Overall they have ${data.prsMerged} merged PRs in the current window.`;
+      return `They opened ${data.prsOpened} PRs this week, but none are merged yet. The newest PRs are ${data.recentPRs.slice(0,2).map(pr=>'#'+pr.number+' '+pr.title).join(' and ')}.`;
+    }
+    return `No pull requests were opened in the current seven-day window, so there is not much shipped work to highlight yet.`;
+  }
+  if(type==='backlog'){
+    if(data.openList?.length)return `The main open work right now is ${data.openList.slice(0,2).map(issue=>'#'+issue.number+' '+issue.title).join(' and ')}. In total there are ${data.openIssues} assigned open issues in the tracked repositories.`;
+    return data.openIssues?`There are ${data.openIssues} assigned open issues, but the detailed titles have not loaded yet.`:`There are no assigned open issues in the current snapshot.`;
+  }
+  if(type==='focus'){
+    if(data.openIssues>0)return `The next focus should be reducing the ${data.openIssues} open issue${data.openIssues===1?'':'s'} while keeping PR flow moving. ${data.prsMerged?`There is already merged momentum to build on.`:`Getting the next PR merged would create the clearest signal of progress.`}`;
+    if(data.prsOpened&&!data.prsMerged)return `The biggest next step is getting the open PR work across the line. There is active development, but the merge pipeline is the main thing to unblock.`;
+    return `The week looks relatively clear right now. The best next move is to pick up the next scoped issue and keep the current shipping pace going.`;
+  }
+  return buildPerformanceSummary(data);
+}
+
+function renderOfficeOptions(username,disabled=false){
+  $('dlg-options').innerHTML=OFFICE_OPTIONS.map(option=>`
+    <div class="dlg-opt${disabled?' disabled':''}" ${disabled?'':'onclick="pickOpt(\''+option.id+'\',\''+username+'\')"'}>${option.label}</div>`).join('');
+}
+
+function openDlg(char){
+  currentChar=char;
+  dlgOpen=true;
+  if(document.pointerLockElement)document.exitPointerLock();
+  $('dlg-name').textContent=char.userData.name+' (@'+char.userData.username+')';
+  $('dialogue-content').innerHTML=`<p>${esc(buildOfficeGreeting(summaryCache[char.userData.username]))}</p>`;
+  renderOfficeOptions(char.userData.username,!summaryCache[char.userData.username]);
+  $('dialogue-box').style.display='block';
+}
+
+function closeDlg(){
+  $('dialogue-box').style.display='none';
+  dlgOpen=false;
+  currentChar=null;
+}
+
+async function pickOpt(type,username){
+  if(!summaryCache[username])return;
+  const char=officeChars.find(item=>item.userData.username===username);
+  const speaker=char?.userData.name||username;
+  const marker='office-'+Date.now();
+  const content=$('dialogue-content');
+  content.innerHTML+=`<p><strong>You:</strong> ${esc(officePromptText(type))}</p><p><strong>${esc(speaker)}:</strong> <span id="${marker}">Checking the synced dashboard data…</span></p>`;
+  content.scrollTop=content.scrollHeight;
+  renderOfficeOptions(username,true);
+  try{
+    const response=await buildOfficeResponse(type,username);
+    const span=$(marker);
+    if(span)span.textContent=response;
+  }catch(error){
+    const span=$(marker);
+    if(span)span.textContent='I could not load that detail right now: '+error.message;
+  }
+  renderOfficeOptions(username,false);
+  content.scrollTop=content.scrollHeight;
+}
+
+function initOffice(){
+  const canvas=$('office-canvas');
+  const width=canvas.clientWidth||window.innerWidth;
+  const height=canvas.clientHeight||Math.max(500,window.innerHeight-92);
+
+  if(!officeScene){
+    officeScene=new THREE.Scene();
+    officeScene.background=new THREE.Color(0xf0f0f0);
+    officeScene.fog=new THREE.Fog(0xf0f0f0,15,50);
+
+    officeCamera=new THREE.PerspectiveCamera(75,width/height,0.1,1000);
+    officeCamera.position.copy(officePlayer.position);
+
+    officeRenderer=new THREE.WebGLRenderer({canvas,antialias:true});
+    officeRenderer.setSize(width,height);
+    officeRenderer.shadowMap.enabled=true;
+
+    officeScene.add(new THREE.AmbientLight(0xffffff,0.6));
+    const light=new THREE.DirectionalLight(0xffffff,0.6);
+    light.position.set(10,15,10);
+    light.castShadow=true;
+    officeScene.add(light);
+
+    const floor=new THREE.Mesh(new THREE.PlaneGeometry(40,40),new THREE.MeshStandardMaterial({color:0xdcdcdc}));
+    floor.rotation.x=-Math.PI/2;
+    floor.receiveShadow=true;
+    officeScene.add(floor);
+
+    const wallMaterial=new THREE.MeshStandardMaterial({color:0xf8f8f8});
+    [[0,5,-20,0,0,0],[0,5,20,Math.PI,0,0],[-20,5,0,0,Math.PI/2,0],[20,5,0,0,-Math.PI/2,0]].forEach(([x,y,z,rx,ry,rz])=>{
+      const wall=new THREE.Mesh(new THREE.PlaneGeometry(40,10),wallMaterial);
+      wall.position.set(x,y,z);
+      wall.rotation.set(rx,ry,rz);
+      officeScene.add(wall);
+    });
+
+    [[-16,-16],[16,-16],[0,16]].forEach(([x,z])=>{
+      const pot=new THREE.Mesh(new THREE.CylinderGeometry(.3,.25,.4,8),new THREE.MeshStandardMaterial({color:0x8b4513}));
+      pot.position.set(x,.2,z);
+      officeScene.add(pot);
+      const leaves=new THREE.Mesh(new THREE.SphereGeometry(.6,6,5),new THREE.MeshStandardMaterial({color:0x228b22}));
+      leaves.position.set(x,.9,z);
+      officeScene.add(leaves);
+    });
+  }
+
+  rebuildOfficeOccupants();
+  bindOfficeEvents();
+  officeInitialized=true;
+  if(!officeLoopStarted){
+    officeLoopStarted=true;
+    requestAnimationFrame(officeLoop);
+  }
+}
+
+function rebuildOfficeOccupants(){
+  officeChars.forEach(char=>officeScene.remove(char));
+  officeDesks.forEach(desk=>officeScene.remove(desk));
+  officeChars=[];
+  officeDesks=[];
+
+  const positions=[[-8,-8],[0,-8],[8,-8],[-8,4],[0,4],[8,4],[-4,0],[4,0]];
+  (cfg.members||[]).forEach((member,index)=>{
+    const position=positions[index%positions.length];
+    const char=makeChar(member.name,member.username,member.color,position[0],position[1]);
+    const desk=makeDesk(position[0],position[1]-1.5);
+    officeChars.push(char);
+    officeDesks.push(desk);
+    officeScene.add(char);
+    officeScene.add(desk);
+  });
+}
+
+function bindOfficeEvents(){
+  if(officeEventsBound)return;
+  officeEventsBound=true;
+  const canvas=$('office-canvas');
+
+  document.addEventListener('keydown',onOfficeKey);
+  document.addEventListener('keyup',event=>{
+    officeKeys[event.key.toLowerCase()]=false;
+    officeKeys[event.key]=false;
+    if(event.key===' ')officePlayer.isDancing=false;
+  });
+  document.addEventListener('mousemove',event=>{
+    if(document.pointerLockElement===canvas&&!dlgOpen)officeMouseX-=event.movementX*.002;
+  });
+  canvas.addEventListener('click',()=>{
+    if(!dlgOpen&&!canvas.disabled)canvas.requestPointerLock?.();
+  });
+  window.addEventListener('resize',()=>{
+    if(!officeCamera||!officeRenderer)return;
+    const width=canvas.clientWidth||window.innerWidth;
+    const height=canvas.clientHeight||Math.max(500,window.innerHeight-92);
+    officeCamera.aspect=width/height;
+    officeCamera.updateProjectionMatrix();
+    officeRenderer.setSize(width,height);
+  });
+}
+
+function makeDesk(x,z){
+  const group=new THREE.Group();
+  const top=new THREE.Mesh(new THREE.BoxGeometry(2.5,.08,1.2),new THREE.MeshStandardMaterial({color:0x8b6914}));
+  top.position.y=.75;
+  group.add(top);
+  const monitor=new THREE.Mesh(new THREE.BoxGeometry(1,.6,.05),new THREE.MeshStandardMaterial({color:0x111111}));
+  monitor.position.set(0,1.2,0);
+  group.add(monitor);
+  const keyboard=new THREE.Mesh(new THREE.BoxGeometry(.4,.02,.15),new THREE.MeshStandardMaterial({color:0x444444}));
+  keyboard.position.set(0,.8,.25);
+  group.add(keyboard);
+  group.position.set(x,0,z);
+  return group;
+}
+
+function makeChar(name,username,color,x,z){
+  const group=new THREE.Group();
+  const fill=parseInt(color.replace('#',''),16);
+
+  const torso=new THREE.Mesh(new THREE.CylinderGeometry(.22,.27,.75,8),new THREE.MeshStandardMaterial({color:fill}));
+  torso.position.y=.65;
+  group.add(torso);
+
+  const leftArm=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,.55,6),new THREE.MeshStandardMaterial({color:fill}));
+  leftArm.position.set(-.28,.72,0);
+  leftArm.rotation.z=Math.PI/8;
+  group.add(leftArm);
+
+  const rightArm=leftArm.clone();
+  rightArm.position.set(.28,.72,0);
+  rightArm.rotation.z=-Math.PI/8;
+  group.add(rightArm);
+
+  const leftLeg=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,.7,6),new THREE.MeshStandardMaterial({color:0x2c3e50}));
+  leftLeg.position.set(-.13,.35,0);
+  group.add(leftLeg);
+
+  const rightLeg=leftLeg.clone();
+  rightLeg.position.set(.13,.35,0);
+  group.add(rightLeg);
+
+  const head=new THREE.Mesh(new THREE.SphereGeometry(.22,8,6),new THREE.MeshStandardMaterial({color:0xffdbac}));
+  head.position.y=1.2;
+  group.add(head);
+
+  const hair=new THREE.Mesh(new THREE.SphereGeometry(.24,8,6),new THREE.MeshStandardMaterial({color:0x3d3d3d}));
+  hair.position.y=1.28;
+  hair.scale.y=.55;
+  group.add(hair);
+
+  const canvas=document.createElement('canvas');
+  canvas.width=256;
+  canvas.height=56;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='rgba(255,255,255,0.9)';
+  ctx.fillRect(0,0,256,56);
+  ctx.fillStyle='#111';
+  ctx.font='bold 18px Arial';
+  ctx.textAlign='center';
+  ctx.fillText(name,128,22);
+  ctx.fillStyle='#555';
+  ctx.font='13px Arial';
+  ctx.fillText('@'+username,128,42);
+  const label=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(canvas)}));
+  label.position.y=1.7;
+  label.scale.set(2,.45,1);
+  group.add(label);
+
+  group.position.set(x,0,z);
+  group.userData={name,username,color,initPos:new THREE.Vector3(x,0,z),targetPos:new THREE.Vector3(x,0,z),moveTimer:3+Math.random()*4,isDancing:false};
+  return group;
+}
+
+function onOfficeKey(event){
+  officeKeys[event.key.toLowerCase()]=true;
+  officeKeys[event.key]=true;
+  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(event.key))event.preventDefault();
+  if(event.key.toLowerCase()==='e'&&nearbyChar&&!dlgOpen)openDlg(nearbyChar);
+  if(event.key===' '&&!dlgOpen)officePlayer.isDancing=true;
+  if(event.key==='Escape'){
+    closeDlg();
+    document.exitPointerLock?.();
+  }
+}
+
+function floatText(text,worldPos){
+  const projected=worldPos.clone().project(officeCamera);
+  const canvas=$('office-canvas');
+  const x=(projected.x*.5+.5)*canvas.clientWidth;
+  const y=(-projected.y*.5+.5)*canvas.clientHeight;
+  const el=document.createElement('div');
+  el.className='float-txt';
+  el.textContent=text;
+  el.style.left=x+'px';
+  el.style.top=y+'px';
+  $('page-office').appendChild(el);
+  setTimeout(()=>el.remove(),2000);
+}
+
+function officeLoop(){
+  requestAnimationFrame(officeLoop);
+  if(!officeRenderer)return;
+
+  if(!dlgOpen&&!officePlayer.isDancing){
+    const speed=.1;
+    const forward=new THREE.Vector3(0,0,-1).applyEuler(new THREE.Euler(0,officeMouseX,0));
+    forward.y=0;
+    forward.normalize();
+    const right=new THREE.Vector3(1,0,0).applyEuler(new THREE.Euler(0,officeMouseX,0));
+    right.y=0;
+    right.normalize();
+    if(officeKeys.w)officePlayer.position.addScaledVector(forward,speed);
+    if(officeKeys.s)officePlayer.position.addScaledVector(forward,-speed);
+    if(officeKeys.a)officePlayer.position.addScaledVector(right,-speed);
+    if(officeKeys.d)officePlayer.position.addScaledVector(right,speed);
+    if(officeKeys.arrowleft)officeMouseX+=.05;
+    if(officeKeys.arrowright)officeMouseX-=.05;
+    officePlayer.position.x=Math.max(-18,Math.min(18,officePlayer.position.x));
+    officePlayer.position.z=Math.max(-18,Math.min(18,officePlayer.position.z));
+  }
+
+  if(officePlayer.isDancing){
+    officeCamera.position.y=officePlayer.position.y+Math.sin(Date.now()*.01)*.2;
+    officeCamera.rotation.z=Math.sin(Date.now()*.01)*.1;
+  }else{
+    officeCamera.position.copy(officePlayer.position);
+    officeCamera.rotation.z=0;
+  }
+  officeCamera.rotation.y=officeMouseX;
+  officeCamera.rotation.x=0;
+
+  nearbyChar=null;
+  let minDistance=Infinity;
+  officeChars.forEach(char=>{
+    if(char===currentChar){
+      char.lookAt(new THREE.Vector3(officePlayer.position.x,char.position.y,officePlayer.position.z));
+      char.rotation.x=0;
+      char.rotation.z=0;
+      return;
+    }
+
+    char.userData.moveTimer-=.016;
+    if(char.userData.moveTimer<=0){
+      const angle=Math.random()*Math.PI*2;
+      const distance=2+Math.random()*4;
+      char.userData.targetPos.set(
+        char.userData.initPos.x+Math.cos(angle)*distance,
+        0,
+        char.userData.initPos.z+Math.sin(angle)*distance
+      );
+      char.userData.targetPos.x=Math.max(-17,Math.min(17,char.userData.targetPos.x));
+      char.userData.targetPos.z=Math.max(-17,Math.min(17,char.userData.targetPos.z));
+      char.userData.moveTimer=3+Math.random()*5;
+      if(Math.random()<.12){
+        char.userData.isDancing=true;
+        floatText('🎵',char.position);
+        setTimeout(()=>{char.userData.isDancing=false;},2500);
+      }
+    }
+
+    if(char.userData.isDancing){
+      char.rotation.y+=.08;
+      char.position.y=Math.abs(Math.sin(Date.now()*.01))*.25;
+    }else{
+      const direction=new THREE.Vector3().subVectors(char.userData.targetPos,char.position);
+      direction.y=0;
+      if(direction.length()>.1){
+        direction.normalize();
+        char.position.addScaledVector(direction,.018);
+        char.lookAt(char.userData.targetPos);
+        char.rotation.x=0;
+        char.rotation.z=0;
+        char.position.y=Math.abs(Math.sin(Date.now()*.005))*.04;
+      }
+    }
+
+    const distance=officePlayer.position.distanceTo(char.position);
+    if(distance<3&&distance<minDistance){
+      minDistance=distance;
+      nearbyChar=char;
+    }
+  });
+
+  const prompt=$('interact-prompt');
+  if(nearbyChar&&!dlgOpen&&Object.keys(summaryCache).length){
+    prompt.style.display='block';
+    prompt.textContent='Press E to inspect '+nearbyChar.userData.name;
+  }else if(nearbyChar&&!dlgOpen){
+    prompt.style.display='block';
+    prompt.textContent='Team data is still syncing…';
+  }else{
+    prompt.style.display='none';
+  }
+
+  officeRenderer.render(officeScene,officeCamera);
+}
+
+function bootstrap(){
+  cfg=lsCfg();
+  setupMembers=(cfg.members||[]).length?(cfg.members||[]).map((member,index)=>cloneMember(member,index)):[newMember(0),newMember(1)];
+  settingsMembers=(cfg.members||[]).length?(cfg.members||[]).map((member,index)=>cloneMember(member,index)):[newMember(0)];
+  renderMembers('setup');
+  renderMembers('settings');
+  if(!cfg.mgrPw){
+    $('login-hint').textContent='First time here? Use the Manager tab to validate the GitHub connection and finish setup.';
+  }
+}
+
+bootstrap();
+</script>
+</body>
+</html>
