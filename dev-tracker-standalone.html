@@ -7,15 +7,13 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',sans-serif;background:#0d1117;color:#c9d1d9;min-height:100vh}
-input,button,select{font-family:inherit}
+input,button,select,textarea{font-family:inherit}
 a{color:#58a6ff}
 .screen{display:none}
 .screen.active{display:flex;min-height:100vh;flex-direction:column}
 #s-login.active{align-items:center;justify-content:center;padding:20px}
 #s-setup.active{align-items:flex-start;justify-content:center;padding:30px 20px;overflow-y:auto}
 #s-app{flex-direction:column}
-
-/* Shared */
 .sub{font-size:13px;color:#8b949e}
 .status-msg{display:none;margin-top:12px;padding:11px 13px;border-radius:10px;font-size:12px;line-height:1.55}
 .status-msg.err{display:block;background:#2b1116;border:1px solid #f85149;color:#ffb6b0}
@@ -23,9 +21,10 @@ a{color:#58a6ff}
 .status-msg.info{display:block;background:#111f2f;border:1px solid #1f6feb;color:#b6d7ff}
 .field{margin-bottom:14px}
 .field label{display:block;font-size:12px;color:#8b949e;margin-bottom:5px}
-.field input,.field textarea{width:100%;padding:9px 12px;background:#0d1117;border:1px solid #30363d;border-radius:8px;color:#c9d1d9;font-size:14px;outline:none}
-.field input:focus,.field textarea:focus{border-color:#58a6ff}
-.field input.bad,.field textarea.bad{border-color:#f85149;background:#1d1117}
+.field input,.field textarea,.field select{width:100%;padding:9px 12px;background:#0d1117;border:1px solid #30363d;border-radius:8px;color:#c9d1d9;font-size:14px;outline:none}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:#58a6ff}
+.field input.bad,.field textarea.bad,.field select.bad{border-color:#f85149;background:#1d1117}
+.field textarea{min-height:92px;resize:vertical}
 .field small{color:#8b949e;font-size:11px;margin-top:3px;display:block}
 .btn-green{width:100%;padding:11px;background:#238636;border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;margin-top:4px}
 .btn-green:hover{background:#2ea043}
@@ -43,26 +42,21 @@ a{color:#58a6ff}
 .pill.sync.ok{background:#10231a;border-color:#2ea043;color:#8ddb9b}
 .pill.sync.warn{background:#2d2208;border-color:#9e6a03;color:#d29922}
 .pill.sync.err{background:#2b1116;border-color:#f85149;color:#ffb6b0}
+.helper-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
 .page-head h2{font-size:18px;color:#f0f6fc}
 .page-head p{margin-top:4px}
 .empty-state{background:#161b22;border:1px dashed #30363d;border-radius:12px;padding:22px;color:#8b949e;font-size:13px;line-height:1.6}
 .empty-state strong{color:#f0f6fc}
 .split-actions{display:flex;gap:8px;flex-wrap:wrap}
-.stack{display:flex;flex-direction:column;gap:8px}
-.helper-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .muted{color:#8b949e}
-
-/* Login */
 .login-box{background:#161b22;border:1px solid #30363d;border-radius:16px;padding:36px;width:100%;max-width:430px}
 .login-box h1{font-size:20px;color:#f0f6fc;margin:6px 0 4px}
 .tab-row{display:flex;border:1px solid #30363d;border-radius:8px;overflow:hidden;margin-bottom:20px}
 .tab-btn{flex:1;padding:8px;background:none;border:none;color:#8b949e;font-size:13px;cursor:pointer;transition:all .2s}
 .tab-btn.active{background:#238636;color:#fff}
 .hint{font-size:11px;color:#484f58;margin-top:10px;text-align:center;line-height:1.5}
-
-/* Setup and settings */
-.setup-box{background:#161b22;border:1px solid #30363d;border-radius:16px;padding:32px;width:100%;max-width:620px}
+.setup-box{background:#161b22;border:1px solid #30363d;border-radius:16px;padding:32px;width:100%;max-width:640px}
 .note{background:#2d2208;border:1px solid #9e6a03;border-radius:8px;padding:10px 14px;font-size:12px;color:#d29922;margin-bottom:16px;line-height:1.5}
 .member-wrap{background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:8px}
 .member-wrap.bad{border-color:#f85149}
@@ -76,8 +70,6 @@ a{color:#58a6ff}
 .addbtn:hover{border-color:#58a6ff;color:#58a6ff}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .form-grid .field.full{grid-column:1/-1}
-
-/* App shell */
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:#161b22;border-bottom:1px solid #30363d;flex-shrink:0;gap:14px;flex-wrap:wrap}
 .topbar h1{font-size:16px;color:#f0f6fc}
 .topbar-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -92,14 +84,13 @@ a{color:#58a6ff}
 .page{display:none;padding:20px}
 .page.active{display:block}
 #page-office.active{display:block;padding:0;position:relative}
-
-/* Stats */
+.filter-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+.filter-bar label{font-size:12px;color:#8b949e}
+.filter-bar select{background:#161b22;border:1px solid #30363d;border-radius:8px;color:#c9d1d9;padding:8px 12px;font-size:13px;outline:none}
 .stats-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
 .sc{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:14px 16px}
 .sc .sv{font-size:26px;font-weight:700;color:#f0f6fc}
 .sc .sl{font-size:12px;color:#8b949e;margin-top:2px}
-
-/* Team grid */
 .tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
 .wcard{background:#161b22;border:1px solid #30363d;border-radius:12px;overflow:hidden;transition:border-color .2s,transform .15s}
 .wcard.clickable{cursor:pointer}
@@ -132,8 +123,8 @@ a{color:#58a6ff}
 .aitem:last-child{border-bottom:none}
 .more-btn{display:block;width:100%;text-align:center;font-size:12px;color:#58a6ff;padding:8px;border:none;border-top:1px solid #21262d;background:none}
 .minor-note{margin-top:10px;color:#8b949e;font-size:11px;line-height:1.5}
-
-/* Profile */
+.tags-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid #21262d}
+.tag{display:inline-flex;align-items:center;background:#1c2128;border:1px solid #30363d;border-radius:999px;padding:3px 9px;font-size:10px;color:#8b949e}
 .ph{display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap}
 .pav{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;flex-shrink:0}
 .pi h2{font-size:20px;color:#f0f6fc}
@@ -155,12 +146,60 @@ a{color:#58a6ff}
 .summary-box h4{font-size:12px;color:#58a6ff;margin-bottom:10px}
 .summary-box p{font-size:13px;color:#c9d1d9;line-height:1.7}
 .summary-box .muted{font-size:11px;margin-top:10px;display:block}
-
-/* Settings */
+.repo-item{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.repo-name{font-size:13px;color:#58a6ff;font-weight:600}
+.repo-stat{font-size:11px;color:#8b949e}
+.alerts-panel{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:0 0 20px}
+.alert-card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:14px}
+.alert-card h3{font-size:14px;color:#f0f6fc;margin-bottom:6px}
+.alert-card p{font-size:12px;color:#8b949e;line-height:1.55;margin-bottom:10px}
+.alert-card.warn{border-color:#9e6a03;background:#1b1609}
+.alert-card.err{border-color:#f85149;background:#211214}
+.alert-card.ok{border-color:#2ea043;background:#10231a}
+.alert-pill{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:22px;padding:0 8px;border-radius:999px;font-size:11px;font-weight:700;background:#21262d;color:#f0f6fc}
+.alert-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+.alert-list{display:flex;flex-direction:column;gap:8px}
+.alert-item{background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:9px 10px}
+.alert-item strong{display:block;font-size:12px;color:#f0f6fc;margin-bottom:3px}
+.alert-item span{display:block;font-size:11px;color:#8b949e;line-height:1.45}
+.alert-empty{font-size:12px;color:#8ddb9b;line-height:1.5}
+.health-note{margin-top:10px;font-size:11px;color:#8b949e;line-height:1.45}
+.chart-card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:18px;margin-bottom:18px}
+.chart-card h3{font-size:14px;color:#f0f6fc;margin-bottom:12px}
+.chart-card canvas{width:100%!important;height:320px!important}
+.analytics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.comp-card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:16px}
+.comp-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.comp-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff}
+.comp-name{font-size:14px;color:#f0f6fc;font-weight:600}
+.comp-stat{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #21262d;font-size:12px}
+.comp-stat:last-child{border-bottom:none}
+.heatmap-wrap{overflow-x:auto;padding-bottom:6px}
+.heatmap-grid{display:grid;grid-auto-flow:column;grid-auto-columns:14px;grid-template-rows:repeat(7,14px);gap:4px;justify-content:start}
+.hm-cell{width:14px;height:14px;border-radius:3px;background:#161b22;border:1px solid #21262d}
+.hm-0{background:#0e1116}
+.hm-1{background:#0e4429}
+.hm-2{background:#006d32}
+.hm-3{background:#26a641}
+.hm-4{background:#39d353}
+.goal-card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:14px;margin-bottom:10px}
+.goal-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px}
+.goal-title{font-size:14px;color:#f0f6fc;font-weight:600}
+.goal-status{font-size:11px;padding:3px 8px;border-radius:12px}
+.status-pending{background:#2d2208;color:#d29922;border:1px solid #9e6a03}
+.status-progress{background:#1c2d40;color:#58a6ff;border:1px solid #1f6feb}
+.status-done{background:#1a3824;color:#3fb950;border:1px solid #2ea043}
+.goal-desc{font-size:12px;color:#8b949e;margin-bottom:8px;line-height:1.5}
+.goal-meta{font-size:11px;color:#8b949e}
+.kudos-card{background:#161b22;border:1px solid #30363d;border-left:3px solid #f0b72f;border-radius:10px;padding:12px;margin-bottom:10px}
+.kudos-from{font-size:11px;color:#8b949e;margin-bottom:6px}
+.kudos-msg{font-size:13px;color:#c9d1d9;line-height:1.5}
+.kudos-time{font-size:10px;color:#6e7681;margin-top:6px}
+.note-box{background:#1c2128;border:1px solid #30363d;border-radius:10px;padding:14px}
+.note-box textarea{width:100%;min-height:100px;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#c9d1d9;padding:10px;font-size:13px;resize:vertical}
+.note-status{font-size:11px;color:#8b949e;margin-top:8px}
 .cfgsec{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:16px;margin-bottom:14px}
 .cfgsec h3{font-size:14px;color:#f0f6fc;margin-bottom:12px}
-
-/* Office */
 #office-canvas{width:100%;height:calc(100vh - 92px);display:block}
 #office-ui{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.72);padding:12px;border-radius:10px;color:#fff;font-size:12px;line-height:1.8;backdrop-filter:blur(8px);z-index:5;max-width:260px}
 #office-ui h3{font-size:14px;color:#58a6ff;margin-bottom:6px}
@@ -173,17 +212,23 @@ a{color:#58a6ff}
 #interact-prompt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.8);color:#fff;padding:8px 18px;border-radius:20px;display:none;font-size:13px;z-index:5;pointer-events:none}
 .float-txt{position:absolute;color:#ff0;font-size:20px;font-weight:bold;pointer-events:none;animation:floatUp 2s ease-out forwards;text-shadow:2px 2px 4px rgba(0,0,0,.8);z-index:20}
 @keyframes floatUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-80px)}}
-
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.modal.active{display:flex}
+.modal-content{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:24px;max-width:620px;width:100%;max-height:90vh;overflow-y:auto}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.modal-title{font-size:18px;color:#f0f6fc;font-weight:600}
+.modal-close{background:none;border:none;color:#8b949e;font-size:24px;cursor:pointer;padding:0;line-height:1}
+.modal-close:hover{color:#c9d1d9}
 @media(max-width:700px){
   .form-grid{grid-template-columns:1fr}
   .tgrid{grid-template-columns:1fr}
   .stats-bar{grid-template-columns:1fr 1fr}
   .topbar{padding:10px 14px}
+  .chart-card canvas{height:260px!important}
 }
 </style>
 </head>
 <body>
-
 <div id="s-login" class="screen active">
   <div class="login-box">
     <div style="font-size:28px">🏢</div>
@@ -220,7 +265,7 @@ a{color:#58a6ff}
   <div class="setup-box">
     <h2 style="font-size:18px;color:#58a6ff;margin-bottom:4px">First-time setup</h2>
     <p class="sub" style="margin-bottom:16px">Validate the GitHub connection before anything is saved locally.</p>
-    <div class="note">The GitHub token still lives only in this browser's localStorage, but setup now checks the token, repositories, and member usernames before saving.</div>
+    <div class="note">The GitHub token stays in this browser's localStorage, but setup validates the token, repositories, and team members before saving.</div>
     <div class="form-grid">
       <div class="field">
         <label>Manager password</label>
@@ -278,7 +323,10 @@ a{color:#58a6ff}
   </div>
   <div class="nav">
     <button class="nbtn active" id="nb-team" onclick="showPage('team')">Team Overview</button>
-    <button class="nbtn" id="nb-profile" style="display:none" onclick="showPage('profile')">My Profile</button>
+    <button class="nbtn" id="nb-analytics" onclick="showPage('analytics')">Analytics</button>
+    <button class="nbtn" id="nb-goals" onclick="showPage('goals')">Goals &amp; OKRs</button>
+    <button class="nbtn" id="nb-kudos" onclick="showPage('kudos')">Recognition</button>
+    <button class="nbtn" id="nb-profile" style="display:none" onclick="showPage('profile')">Profile</button>
     <button class="nbtn" id="nb-office" onclick="showPage('office')" disabled>Team Space (beta)</button>
     <button class="nbtn" id="nb-config" style="display:none" onclick="showPage('config')">Settings</button>
   </div>
@@ -294,8 +342,81 @@ a{color:#58a6ff}
           <span class="sub" id="last-updated-label">Last updated: not synced yet</span>
         </div>
       </div>
+      <div class="filter-bar">
+        <label for="team-range-filter">Time range</label>
+        <select id="team-range-filter" onchange="handleRangeChange(this.value)">
+          <option value="7">Last 7 days</option>
+          <option value="14">Last 14 days</option>
+          <option value="30">Last 30 days</option>
+          <option value="90">Last 90 days</option>
+        </select>
+        <label for="sort-filter">Sort by</label>
+        <select id="sort-filter" onchange="handleSortChange(this.value)">
+          <option value="activity">Activity score</option>
+          <option value="commits">Commits</option>
+          <option value="prs">PRs opened</option>
+          <option value="merged">PRs merged</option>
+          <option value="name">Name</option>
+        </select>
+        <button class="tbtn" id="export-btn" onclick="exportCSV()">Export CSV</button>
+      </div>
       <div class="stats-bar" id="stats-bar"></div>
+      <div id="team-alerts"></div>
       <div class="tgrid" id="tgrid"></div>
+    </div>
+
+    <div class="page" id="page-analytics">
+      <div class="page-head">
+        <div>
+          <h2>Analytics</h2>
+          <p class="sub">Charts built from the same repo-scoped summary data used on the team dashboard.</p>
+        </div>
+      </div>
+      <div class="filter-bar">
+        <label for="analytics-range-filter">Time range</label>
+        <select id="analytics-range-filter" onchange="handleRangeChange(this.value)">
+          <option value="7">Last 7 days</option>
+          <option value="14">Last 14 days</option>
+          <option value="30">Last 30 days</option>
+          <option value="90">Last 90 days</option>
+        </select>
+        <label for="analytics-view">View</label>
+        <select id="analytics-view" onchange="handleAnalyticsViewChange(this.value)">
+          <option value="timeline">Team timeline</option>
+          <option value="comparison">Member comparison</option>
+          <option value="prhealth">PR health</option>
+          <option value="heatmap">Activity heatmap</option>
+          <option value="repos">Repository breakdown</option>
+          <option value="languages">Language distribution</option>
+        </select>
+      </div>
+      <div id="analytics-content"></div>
+    </div>
+
+    <div class="page" id="page-goals">
+      <div class="page-head">
+        <div>
+          <h2>Goals &amp; OKRs</h2>
+          <p class="sub">Track team goals locally in this browser.</p>
+        </div>
+        <div class="helper-row">
+          <button class="btn-green" id="goals-create-btn" style="width:auto;padding:8px 16px" onclick="openGoalModal()">+ New Goal</button>
+        </div>
+      </div>
+      <div id="goals-list"></div>
+    </div>
+
+    <div class="page" id="page-kudos">
+      <div class="page-head">
+        <div>
+          <h2>Recognition</h2>
+          <p class="sub">A lightweight local feed for team appreciation and shout-outs.</p>
+        </div>
+        <div class="helper-row">
+          <button class="btn-green" style="width:auto;padding:8px 16px" onclick="openKudosModal()">+ Give Kudos</button>
+        </div>
+      </div>
+      <div id="kudos-list"></div>
     </div>
 
     <div class="page" id="page-profile">
@@ -310,7 +431,7 @@ a{color:#58a6ff}
         <div>E to inspect teammate data</div>
         <div>SPACE to dance</div>
         <div>ESC to close the dialog</div>
-        <div style="margin-top:8px;color:#8b949e;font-size:11px">This beta only uses synced dashboard data and preset prompts. Free-form AI chat is disabled in the standalone build.</div>
+        <div style="margin-top:8px;color:#8b949e;font-size:11px">This beta only uses synced dashboard data and preset prompts. Notes, goals, and recognition do not change the 3D experience yet.</div>
       </div>
       <canvas id="office-canvas"></canvas>
       <div id="interact-prompt"></div>
@@ -373,11 +494,97 @@ a{color:#58a6ff}
   </div>
 </div>
 
+<div id="goal-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title" id="goal-modal-title">Create Goal</h3>
+      <button class="modal-close" onclick="closeModal('goal-modal')">&times;</button>
+    </div>
+    <div class="field">
+      <label>Assign to</label>
+      <select id="goal-assignee"></select>
+    </div>
+    <div class="field">
+      <label>Goal title</label>
+      <input type="text" id="goal-title" placeholder="e.g. Finish migration plan">
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <textarea id="goal-desc" placeholder="Define the desired outcome and what success looks like."></textarea>
+    </div>
+    <div class="field">
+      <label>Target date</label>
+      <input type="date" id="goal-date">
+    </div>
+    <div class="field">
+      <label>Status</label>
+      <select id="goal-status">
+        <option value="pending">Pending</option>
+        <option value="progress">In Progress</option>
+        <option value="done">Done</option>
+      </select>
+    </div>
+    <div class="status-msg" id="goal-status-msg"></div>
+    <button class="btn-green" onclick="saveGoal()">Save Goal</button>
+  </div>
+</div>
+
+<div id="kudos-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Give Recognition</h3>
+      <button class="modal-close" onclick="closeModal('kudos-modal')">&times;</button>
+    </div>
+    <div class="field">
+      <label>Recognize</label>
+      <select id="kudos-to"></select>
+    </div>
+    <div class="field">
+      <label>Message</label>
+      <textarea id="kudos-msg" placeholder="Call out the win, help, or ownership you want to recognize."></textarea>
+    </div>
+    <div class="status-msg" id="kudos-status-msg"></div>
+    <button class="btn-green" onclick="saveKudos()">Send Recognition</button>
+  </div>
+</div>
+
+<div id="tag-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Edit Tags</h3>
+      <button class="modal-close" onclick="closeModal('tag-modal')">&times;</button>
+    </div>
+    <div class="field">
+      <label>Member</label>
+      <input type="text" id="tag-member-label" readonly>
+    </div>
+    <div class="field">
+      <label>Tags</label>
+      <textarea id="tag-input" placeholder="Comma-separated tags, e.g. Frontend, Reviewer, On-call"></textarea>
+      <small>Tags are visible on cards and profiles. Notes stay manager-only.</small>
+    </div>
+    <div class="status-msg" id="tag-status-msg"></div>
+    <button class="btn-green" onclick="saveTags()">Save Tags</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 const KEY='dvt1';
 const CACHE_KEY='dvt1-cache';
+const GOALS_KEY='dvt1-goals';
+const KUDOS_KEY='dvt1-kudos';
+const NOTES_KEY='dvt1-notes';
+const TAGS_KEY='dvt1-tags';
+const PREFS_KEY='dvt1-prefs';
+const SESSION_KEY='dvt1-session';
 const COLS=['#58a6ff','#3fb950','#d29922','#f85149','#a371f7','#39d353','#ff7b72','#ffa657'];
+const RANGE_OPTIONS=[7,14,30,90];
+const STALE_PR_HOURS=72;
+const WAITING_REVIEW_HOURS=24;
+const OVERLOAD_THRESHOLD=6;
+const SLOW_REVIEW_HOURS=36;
 const OFFICE_OPTIONS=[
   {id:'summary',label:'Give me the quick summary'},
   {id:'shipped',label:'What shipped this week?'},
@@ -392,10 +599,22 @@ let setupMembers=[];
 let settingsMembers=[];
 let summaryCache={};
 let detailCache={};
-let lastUpdatedAt='';
+let rangeUpdatedAt={};
+let currentRangeDays=7;
+let currentSortKey='activity';
+let currentAnalyticsView='timeline';
 let selectedProfileUsername='';
-let summaryLoadPromise=null;
-let summaryLoadToken=0;
+let summaryLoadPromises={};
+let summaryLoadTokens={};
+let chartInstances={};
+let goals=[];
+let kudos=[];
+let notes={};
+let tags={};
+let currentGoalIndex=null;
+let currentTagUsername='';
+let repoLanguageCache={};
+let repoLanguagePromises={};
 const detailInFlight=new Map();
 
 let officeInitialized=false;
@@ -416,26 +635,99 @@ let officeLoopStarted=false;
 function $(id){return document.getElementById(id)}
 function lsCfg(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return{}}}
 function wsCfg(next){localStorage.setItem(KEY,JSON.stringify(next))}
-function v(id){return $(id).value.trim()}
+function storageJson(key,fallback){try{return JSON.parse(localStorage.getItem(key)||JSON.stringify(fallback))}catch{return fallback}}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 function escAttr(s){return esc(s).replace(/"/g,'&quot;')}
-function ini(name){return String(name||'?').split(' ').filter(Boolean).map(w=>w[0]).join('').toUpperCase().slice(0,2)||'?'}
+function ini(name){return String(name||'?').split(' ').filter(Boolean).map(word=>word[0]).join('').toUpperCase().slice(0,2)||'?'}
+function v(id){return $(id).value.trim()}
 function cloneMember(member,index){return{name:(member?.name||'').trim(),username:(member?.username||'').trim(),color:member?.color||COLS[index%COLS.length]}}
 function newMember(index){return{name:'',username:'',color:COLS[index%COLS.length]}}
-function since7(){const d=new Date();d.setDate(d.getDate()-7);return d.toISOString()}
 function formatTimestamp(value){if(!value)return'not synced yet';return new Date(value).toLocaleString([], {dateStyle:'medium',timeStyle:'short'})}
-function cacheSignature(conf){return JSON.stringify({org:conf.org||'',repos:conf.repos||[],members:(conf.members||[]).map(m=>m.username.toLowerCase())})}
-function memberByUsername(username){return(cfg.members||[]).find(m=>m.username===username)||null}
+function rangeKey(days){return String(days)}
+function activePage(){const page=document.querySelector('.page.active');return page?page.id.replace('page-',''):''}
+function cacheSignature(conf){return JSON.stringify({org:conf.org||'',repos:conf.repos||[],members:(conf.members||[]).map(member=>member.username.toLowerCase())})}
+function memberByUsername(username){return(cfg.members||[]).find(member=>member.username===username)||null}
 function getStore(scope){return scope==='setup'?setupMembers:settingsMembers}
 function listId(scope){return scope==='setup'?'setup-members-list':'cfg-members-list'}
 function wrapId(scope){return scope==='setup'?'setup-members-wrap':'cfg-members-wrap'}
 function statusId(scope){return scope==='setup'?'setup-status':'cfg-status'}
 function buttonId(scope){return scope==='setup'?'setup-save-btn':'cfg-save-btn'}
 function fieldIds(scope){return scope==='setup'?['s-mpw','s-dpw','s-tok','s-org','s-rep']:['cfg-mpw','cfg-dpw','cfg-tok','cfg-org','cfg-rep']}
+function getSummaryStore(days=currentRangeDays){const key=rangeKey(days);if(!summaryCache[key])summaryCache[key]={};return summaryCache[key]}
+function getDetailStore(days=currentRangeDays){const key=rangeKey(days);if(!detailCache[key])detailCache[key]={};return detailCache[key]}
+function getRangeUpdated(days=currentRangeDays){return rangeUpdatedAt[rangeKey(days)]||''}
+function setRangeUpdated(days,value){rangeUpdatedAt[rangeKey(days)]=value}
+function detailFlightKey(username,days=currentRangeDays){return rangeKey(days)+':'+username}
+function goalAssigneeLabel(value){if(value==='team')return'Entire team';const member=memberByUsername(value);return member?member.name:value}
+function csvCell(value){return `"${String(value??'').replace(/"/g,'""')}"`}
+function show(id){document.querySelectorAll('.screen').forEach(el=>el.classList.remove('active'));$(id).classList.add('active')}
+function clearSessionStorage(){localStorage.removeItem(SESSION_KEY)}
 
-function show(id){
-  document.querySelectorAll('.screen').forEach(el=>el.classList.remove('active'));
-  $(id).classList.add('active');
+function normalizeRangeCache(cache){
+  if(!cache||typeof cache!=='object'||Array.isArray(cache))return{};
+  const keys=Object.keys(cache);
+  if(!keys.length)return{};
+  const valid=RANGE_OPTIONS.map(String);
+  if(keys.every(key=>valid.includes(key)))return cache;
+  return{'7':cache};
+}
+
+function loadPersistedCache(){
+  summaryCache={};
+  detailCache={};
+  rangeUpdatedAt={};
+  try{
+    const raw=JSON.parse(localStorage.getItem(CACHE_KEY)||'{}');
+    if(raw.signature!==cacheSignature(cfg))return;
+    summaryCache=normalizeRangeCache(raw.summaryCache);
+    detailCache=normalizeRangeCache(raw.detailCache);
+    rangeUpdatedAt=raw.rangeUpdatedAt||{};
+    if(raw.savedAt&&!rangeUpdatedAt['7'])rangeUpdatedAt['7']=raw.savedAt;
+  }catch{}
+}
+
+function persistCache(){
+  if(!cfg.org)return;
+  localStorage.setItem(CACHE_KEY,JSON.stringify({
+    signature:cacheSignature(cfg),
+    summaryCache,
+    detailCache,
+    rangeUpdatedAt
+  }));
+}
+
+function clearRuntimeData(clearStorageToo=false){
+  summaryCache={};
+  detailCache={};
+  rangeUpdatedAt={};
+  summaryLoadPromises={};
+  summaryLoadTokens={};
+  repoLanguageCache={};
+  repoLanguagePromises={};
+  selectedProfileUsername=session.role==='dev'?session.memberUsername||'':'';
+  if(clearStorageToo)localStorage.removeItem(CACHE_KEY);
+}
+
+function loadLocalCollections(){
+  goals=storageJson(GOALS_KEY,[]);
+  kudos=storageJson(KUDOS_KEY,[]);
+  notes=storageJson(NOTES_KEY,{});
+  tags=storageJson(TAGS_KEY,{});
+}
+
+function loadPrefs(){
+  const prefs=storageJson(PREFS_KEY,{});
+  currentRangeDays=RANGE_OPTIONS.includes(Number(prefs.currentRangeDays))?Number(prefs.currentRangeDays):7;
+  currentSortKey=prefs.currentSortKey||'activity';
+  currentAnalyticsView=prefs.currentAnalyticsView||'timeline';
+}
+
+function persistPrefs(){
+  localStorage.setItem(PREFS_KEY,JSON.stringify({
+    currentRangeDays,
+    currentSortKey,
+    currentAnalyticsView
+  }));
 }
 
 function setStatus(scope,message,tone='info'){
@@ -458,15 +750,11 @@ function markFormInvalid(scope,keys){
   keys.forEach(key=>{
     const id=map[key];
     if(!id)return;
-    const el=$(id);
-    if(key==='members')el.classList.add('bad');
-    else el.classList.add('bad');
+    $(id).classList.add('bad');
   });
 }
 
-function toggleFormBusy(scope,busy){
-  $(buttonId(scope)).disabled=busy;
-}
+function toggleFormBusy(scope,busy){$(buttonId(scope)).disabled=busy}
 
 function renderMembers(scope){
   const store=getStore(scope);
@@ -481,82 +769,19 @@ function renderMembers(scope){
     </div>`).join('');
 }
 
-function updateMember(scope,index,key,value){
-  const store=getStore(scope);
-  store[index][key]=value;
-}
-
-function addMember(scope){
-  const store=getStore(scope);
-  store.push(newMember(store.length));
-  renderMembers(scope);
-}
-
+function updateMember(scope,index,key,value){getStore(scope)[index][key]=value}
+function addMember(scope){const store=getStore(scope);store.push(newMember(store.length));renderMembers(scope)}
 function removeMember(scope,index){
   const store=getStore(scope);
-  if(store.length===1){
-    store[0]=newMember(0);
-  }else{
-    store.splice(index,1);
-  }
+  if(store.length===1)store[0]=newMember(0);
+  else store.splice(index,1);
   renderMembers(scope);
 }
-
 function cycleColor(scope,index){
   const store=getStore(scope);
   const current=COLS.indexOf(store[index].color);
   store[index].color=COLS[(current+1)%COLS.length];
   renderMembers(scope);
-}
-
-function loadPersistedCache(){
-  summaryCache={};
-  detailCache={};
-  lastUpdatedAt='';
-  try{
-    const raw=JSON.parse(localStorage.getItem(CACHE_KEY)||'{}');
-    if(raw.signature!==cacheSignature(cfg))return;
-    summaryCache=raw.summaryCache||{};
-    detailCache=raw.detailCache||{};
-    lastUpdatedAt=raw.savedAt||'';
-  }catch{}
-}
-
-function persistCache(){
-  if(!cfg.org)return;
-  localStorage.setItem(CACHE_KEY,JSON.stringify({
-    signature:cacheSignature(cfg),
-    summaryCache,
-    detailCache,
-    savedAt:lastUpdatedAt
-  }));
-}
-
-function clearRuntimeData(clearStorageToo=false){
-  summaryCache={};
-  detailCache={};
-  lastUpdatedAt='';
-  selectedProfileUsername=session.role==='dev'?session.memberUsername||'':'';
-  if(clearStorageToo)localStorage.removeItem(CACHE_KEY);
-}
-
-function setSyncPill(text,tone=''){
-  const el=$('sync-pill');
-  el.className='pill sync'+(tone?' '+tone:'');
-  el.textContent=text;
-}
-
-function updateLastUpdatedUI(){
-  $('last-updated-label').textContent='Last updated: '+formatTimestamp(lastUpdatedAt);
-  const hasData=Object.keys(summaryCache).length>0;
-  $('nb-office').disabled=!hasData;
-}
-
-function activityBadge(data){
-  if(data.repoErrors?.length&&data.actScore<=0)return{cls:'b-err',label:'Needs attention'};
-  if(data.actScore>=14||data.prsMerged>=2||data.closedIssues>=3)return{cls:'b-on',label:'Active'};
-  if(data.actScore<=2&&data.openIssues===0)return{cls:'b-ld',label:'Light week'};
-  return{cls:'b-off',label:'Steady'};
 }
 
 function switchTab(mode){
@@ -576,6 +801,38 @@ function showLoginError(message){
 
 function managerSession(){return{role:'manager',name:'Manager',color:'#58a6ff'}}
 
+function persistSession(){
+  if(!session?.role)return;
+  const payload=session.role==='dev'
+    ?{role:'dev',memberUsername:session.memberUsername||''}
+    :{role:'manager'};
+  localStorage.setItem(SESSION_KEY,JSON.stringify(payload));
+}
+
+function restoreSession(){
+  const saved=storageJson(SESSION_KEY,null);
+  if(!saved||typeof saved!=='object')return false;
+  if(saved.role==='manager'){
+    if(!cfg.mgrPw){
+      clearSessionStorage();
+      return false;
+    }
+    session=managerSession();
+    return true;
+  }
+  if(saved.role==='dev'){
+    const match=(cfg.members||[]).find(member=>member.username===saved.memberUsername);
+    if(!match||!cfg.devPw){
+      clearSessionStorage();
+      return false;
+    }
+    session={role:'dev',name:match.name,color:match.color,memberUsername:match.username};
+    return true;
+  }
+  clearSessionStorage();
+  return false;
+}
+
 function doLogin(){
   cfg=lsCfg();
   loadPersistedCache();
@@ -583,35 +840,19 @@ function doLogin(){
 
   if(loginMode==='manager'){
     if(!cfg.mgrPw){goSetup();return;}
-    if(v('mgr-pw')!==cfg.mgrPw){
-      showLoginError('Incorrect manager password.');
-      return;
-    }
+    if(v('mgr-pw')!==cfg.mgrPw){showLoginError('Incorrect manager password.');return;}
     session=managerSession();
     openApp();
     return;
   }
 
-  if(!cfg.mgrPw){
-    showLoginError('Ask a manager to complete setup before developers sign in.');
-    return;
-  }
-
+  if(!cfg.mgrPw){showLoginError('Ask a manager to complete setup before developers sign in.');return;}
   const name=v('dev-nm');
   const password=v('dev-pw');
-  if(!name){
-    showLoginError('Enter the display name configured by your manager.');
-    return;
-  }
-  if(password!==cfg.devPw){
-    showLoginError('Incorrect team password.');
-    return;
-  }
+  if(!name){showLoginError('Enter the display name configured by your manager.');return;}
+  if(password!==cfg.devPw){showLoginError('Incorrect team password.');return;}
   const match=(cfg.members||[]).find(member=>member.name.toLowerCase()===name.toLowerCase());
-  if(!match||!match.username){
-    showLoginError('That developer name is not configured. Ask your manager to add you first.');
-    return;
-  }
+  if(!match||!match.username){showLoginError('That developer name is not configured. Ask your manager to add you first.');return;}
   session={role:'dev',name:match.name,color:match.color,memberUsername:match.username};
   openApp();
 }
@@ -638,13 +879,12 @@ function collectForm(scope){
 }
 
 async function gh(path,token=cfg.token){
-  const response=await fetch('https://api.github.com'+path,{
-    headers:{
-      Authorization:'Bearer '+token,
-      Accept:'application/vnd.github+json',
-      'X-GitHub-Api-Version':'2022-11-28'
-    }
-  });
+  const headers={
+    Accept:'application/vnd.github+json',
+    'X-GitHub-Api-Version':'2022-11-28'
+  };
+  if(token)headers.Authorization='Bearer '+token;
+  const response=await fetch('https://api.github.com'+path,{headers});
   let payload=null;
   try{payload=await response.json()}catch{payload=null}
   if(!response.ok){
@@ -676,14 +916,8 @@ async function validateConfig(scope){
     }
     const nameKey=member.name.toLowerCase();
     const userKey=member.username.toLowerCase();
-    if(member.name&&seenNames.has(nameKey)){
-      issues.push(`Display name "${member.name}" is duplicated.`);
-      invalidKeys.add('members');
-    }
-    if(member.username&&seenUsernames.has(userKey)){
-      issues.push(`GitHub username "@${member.username}" is duplicated.`);
-      invalidKeys.add('members');
-    }
+    if(member.name&&seenNames.has(nameKey)){issues.push(`Display name "${member.name}" is duplicated.`);invalidKeys.add('members')}
+    if(member.username&&seenUsernames.has(userKey)){issues.push(`GitHub username "@${member.username}" is duplicated.`);invalidKeys.add('members')}
     seenNames.add(nameKey);
     seenUsernames.add(userKey);
   });
@@ -701,22 +935,14 @@ async function validateConfig(scope){
     await gh('/user',candidate.token);
     const repoIssues=[];
     for(const repo of candidate.repos){
-      try{
-        await gh('/repos/'+encodeURIComponent(candidate.org)+'/'+encodeURIComponent(repo),candidate.token);
-      }catch(error){
-        repoIssues.push(`Repository "${repo}" could not be validated: ${error.message}`);
-      }
+      try{await gh('/repos/'+encodeURIComponent(candidate.org)+'/'+encodeURIComponent(repo),candidate.token)}
+      catch(error){repoIssues.push(`Repository "${repo}" could not be validated: ${error.message}`)}
     }
-
     const memberIssues=[];
     for(const member of candidate.members){
-      try{
-        await gh('/users/'+encodeURIComponent(member.username),candidate.token);
-      }catch(error){
-        memberIssues.push(`GitHub username "@${member.username}" could not be validated: ${error.message}`);
-      }
+      try{await gh('/users/'+encodeURIComponent(member.username),candidate.token)}
+      catch(error){memberIssues.push(`GitHub username "@${member.username}" could not be validated: ${error.message}`)}
     }
-
     if(repoIssues.length||memberIssues.length){
       if(repoIssues.length)invalidKeys.add('repos');
       if(memberIssues.length)invalidKeys.add('members');
@@ -765,8 +991,7 @@ async function saveSettings(){
   cfg=next;
   wsCfg(cfg);
   settingsMembers=(cfg.members||[]).map((member,index)=>cloneMember(member,index));
-  if(signatureChanged)clearRuntimeData(true);
-  else clearRuntimeData(false);
+  clearRuntimeData(signatureChanged);
   officeInitialized=false;
   populateSettingsForm();
   openApp();
@@ -782,27 +1007,47 @@ function populateSettingsForm(){
   renderMembers('settings');
 }
 
+function syncControls(){
+  const teamRange=$('team-range-filter');
+  const analyticsRange=$('analytics-range-filter');
+  const sortSelect=$('sort-filter');
+  const analyticsView=$('analytics-view');
+  if(teamRange)teamRange.value=String(currentRangeDays);
+  if(analyticsRange)analyticsRange.value=String(currentRangeDays);
+  if(sortSelect)sortSelect.value=currentSortKey;
+  if(analyticsView)analyticsView.value=currentAnalyticsView;
+}
+
 function openApp(){
   cfg=lsCfg();
   loadPersistedCache();
+  loadLocalCollections();
+  persistSession();
   populateSettingsForm();
+  syncControls();
   show('s-app');
 
   const isManager=session.role==='manager';
   $('top-name').textContent=session.name;
   $('top-dot').style.background=session.color||'#58a6ff';
   $('top-dot').textContent=ini(session.name).slice(0,1);
-  $('nb-config').style.display=isManager?'':'none';
   $('nb-team').style.display=isManager?'':'none';
+  $('nb-analytics').style.display=isManager?'':'none';
+  $('nb-goals').style.display='';
+  $('nb-kudos').style.display='';
+  $('nb-config').style.display=isManager?'':'none';
+  $('nb-profile').textContent=isManager?'Profile':'My Profile';
   $('nb-profile').style.display=isManager?(selectedProfileUsername?'':'none'):'';
-  if(!isManager)$('nb-profile').style.display='';
+  $('export-btn').style.display=isManager?'':'none';
+  $('goals-create-btn').style.display=isManager?'':'none';
+
   if(!selectedProfileUsername&&session.role==='dev')selectedProfileUsername=session.memberUsername||'';
 
   updateLastUpdatedUI();
-  if(Object.keys(summaryCache).length){
+  if(Object.keys(getSummaryStore(currentRangeDays)).length){
     renderTeamPage();
     if(selectedProfileUsername)renderProfileFor(selectedProfileUsername);
-    setSyncPill('Using cached snapshot from '+formatTimestamp(lastUpdatedAt),'ok');
+    setSyncPill('Using cached '+currentRangeDays+'-day snapshot from '+formatTimestamp(getRangeUpdated(currentRangeDays)),'ok');
   }else{
     setSyncPill('Loading GitHub data…','warn');
     renderTeamLoadingState();
@@ -810,50 +1055,109 @@ function openApp(){
   }
 
   showPage(isManager?'team':'profile');
-  loadTeamSummary({background:Object.keys(summaryCache).length>0});
+  loadTeamSummary({background:Object.keys(getSummaryStore(currentRangeDays)).length>0,days:currentRangeDays});
 }
 
+function updateLastUpdatedUI(){
+  $('last-updated-label').textContent='Last updated: '+formatTimestamp(getRangeUpdated(currentRangeDays));
+  $('team-sub').textContent='Recent GitHub activity across the configured repositories for the last '+currentRangeDays+' days.';
+  $('nb-office').disabled=!Object.keys(getSummaryStore(currentRangeDays)).length;
+}
+
+function setSyncPill(text,tone=''){
+  const el=$('sync-pill');
+  el.className='pill sync'+(tone?' '+tone:'');
+  el.textContent=text;
+}
+
+function activityBadge(data){
+  if((data.blockedPrCount||0)>0||(data.staleOpenPrCount||0)>=2)return{cls:'b-err',label:'PR attention'};
+  if((data.waitingReviewCount||0)>0)return{cls:'b-off',label:'Needs review'};
+  if(data.repoErrors?.length&&data.actScore<=0)return{cls:'b-err',label:'Needs attention'};
+  if(data.actScore>=14||data.prsMerged>=2||data.closedIssues>=3)return{cls:'b-on',label:'Active'};
+  if(data.actScore<=2&&data.openIssues===0)return{cls:'b-ld',label:'Light week'};
+  return{cls:'b-off',label:'Steady'};
+}
+
+function isManager(){return session.role==='manager'}
+
 function showPage(page){
+  const restrictedForDeveloper=new Set(['team','analytics','config']);
   let nextPage=page;
-  if(session.role!=='manager'&&page==='team')nextPage='profile';
+  if(!isManager()&&restrictedForDeveloper.has(page))nextPage='profile';
+
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.nbtn').forEach(el=>el.classList.remove('active'));
   $('page-'+nextPage).classList.add('active');
   const nav=$('nb-'+nextPage);
   if(nav)nav.classList.add('active');
 
+  if(nextPage==='team')renderTeamPage();
+  if(nextPage==='analytics')renderAnalytics();
+  if(nextPage==='goals')renderGoals();
+  if(nextPage==='kudos')renderKudos();
   if(nextPage==='profile'){
     renderProfileFor(selectedProfileUsername||session.memberUsername||'');
-    if(selectedProfileUsername)loadMemberDetails(selectedProfileUsername);
+    if(selectedProfileUsername||session.memberUsername)loadMemberDetails(selectedProfileUsername||session.memberUsername,currentRangeDays);
   }
   if(nextPage==='office'){
     if(!officeInitialized)initOffice();
-    if(!Object.keys(summaryCache).length)loadTeamSummary({background:false});
+    if(!Object.keys(getSummaryStore(currentRangeDays)).length)loadTeamSummary({background:false,days:currentRangeDays});
   }
+  if(nextPage==='config')populateSettingsForm();
 }
 
 function doLogout(){
   session={};
   selectedProfileUsername='';
+  clearSessionStorage();
   $('mgr-pw').value='';
   $('dev-pw').value='';
   $('dev-nm').value='';
   setSyncPill('Signed out','');
+  switchTab('manager');
   show('s-login');
 }
 
 function resetConfig(){
   if(!confirm('Reset the local config and return to first-time setup?'))return;
-  localStorage.removeItem(KEY);
-  localStorage.removeItem(CACHE_KEY);
+  [KEY,CACHE_KEY,GOALS_KEY,KUDOS_KEY,NOTES_KEY,TAGS_KEY,PREFS_KEY,SESSION_KEY].forEach(key=>localStorage.removeItem(key));
   cfg={};
   session={};
   summaryCache={};
   detailCache={};
-  lastUpdatedAt='';
+  rangeUpdatedAt={};
   setupMembers=[newMember(0),newMember(1)];
   renderMembers('setup');
   goSetup();
+}
+
+function handleRangeChange(value){
+  const next=Number(value);
+  if(!RANGE_OPTIONS.includes(next))return;
+  currentRangeDays=next;
+  persistPrefs();
+  syncControls();
+  updateLastUpdatedUI();
+  const active=activePage();
+  if(active==='team')renderTeamPage();
+  if(active==='analytics')renderAnalytics();
+  if(active==='profile')renderProfileFor(selectedProfileUsername||session.memberUsername||'');
+  const hasCache=Object.keys(getSummaryStore(currentRangeDays)).length>0;
+  loadTeamSummary({background:hasCache,days:currentRangeDays});
+  if(selectedProfileUsername||session.memberUsername)loadMemberDetails(selectedProfileUsername||session.memberUsername,currentRangeDays);
+}
+
+function handleSortChange(value){
+  currentSortKey=value;
+  persistPrefs();
+  renderTeamPage();
+}
+
+function handleAnalyticsViewChange(value){
+  currentAnalyticsView=value;
+  persistPrefs();
+  renderAnalytics();
 }
 
 async function mapWithConcurrency(items,limit,worker){
@@ -870,52 +1174,305 @@ async function mapWithConcurrency(items,limit,worker){
   return results;
 }
 
-function sortByDate(items,key){
-  return [...items].sort((a,b)=>new Date(b[key]||0)-new Date(a[key]||0));
+function sortByDate(items,key){return[...items].sort((a,b)=>new Date(b[key]||0)-new Date(a[key]||0))}
+function buildActScore(data){return(data.commits*2)+(data.prsOpened*3)+(data.prsMerged*5)+(data.closedIssues*3)+(data.discussionCount||0)+(data.mergedOthers||0)*4}
+function hoursBetween(start,end){
+  const from=new Date(start).getTime();
+  const to=new Date(end).getTime();
+  if(!Number.isFinite(from)||!Number.isFinite(to))return null;
+  return Math.max(0,(to-from)/36e5);
+}
+function formatHourDuration(hours){
+  if(hours===null||hours===undefined||Number.isNaN(hours))return'No review data';
+  if(hours<24)return Math.round(hours)+'h';
+  const days=hours/24;
+  return (days>=10?Math.round(days):days.toFixed(1))+'d';
+}
+function firstReviewTimestamp(reviews){
+  let first='';
+  (reviews||[]).forEach(review=>{
+    if(!review?.submitted_at||review.state==='PENDING')return;
+    if(!first||new Date(review.submitted_at)<new Date(first))first=review.submitted_at;
+  });
+  return first;
+}
+function latestMeaningfulReviewState(reviews){
+  let latestState='';
+  let latestAt=0;
+  (reviews||[]).forEach(review=>{
+    if(!review?.submitted_at||review.state==='PENDING'||review.state==='COMMENTED')return;
+    const timestamp=new Date(review.submitted_at).getTime();
+    if(timestamp>latestAt){
+      latestAt=timestamp;
+      latestState=review.state;
+    }
+  });
+  return latestState;
+}
+function alertSeverity(count){
+  if(count>=3)return'err';
+  if(count>0)return'warn';
+  return'ok';
+}
+function compactPrLabel(pr){
+  return `#${pr.number} ${pr.title}`;
 }
 
-function buildActScore(data){
-  return(data.commits*2)+(data.prsOpened*3)+(data.prsMerged*5)+(data.closedIssues*3)+(data.discussionCount||0)+(data.mergedOthers||0)*4;
+function makeTimelineBuckets(days){
+  const dates=[];
+  const counts={};
+  const today=new Date();
+  today.setUTCHours(0,0,0,0);
+  for(let offset=days-1;offset>=0;offset--){
+    const day=new Date(today);
+    day.setUTCDate(day.getUTCDate()-offset);
+    const key=day.toISOString().slice(0,10);
+    dates.push(key);
+    counts[key]=0;
+  }
+  return{dates,counts};
 }
 
-async function fetchMemberSummary(member){
-  const since=since7();
-  const sinceDate=new Date(since);
+function timelineKey(timestamp){
+  if(!timestamp)return'';
+  const date=new Date(timestamp);
+  if(Number.isNaN(date.getTime()))return'';
+  return date.toISOString().slice(0,10);
+}
+
+function addTimelineActivity(buckets,timestamp,weight=1){
+  const key=timelineKey(timestamp);
+  if(key&&buckets.counts[key]!==undefined)buckets.counts[key]+=weight;
+}
+
+function updateLatestActivity(current,timestamp){
+  if(!timestamp)return current;
+  if(!current)return timestamp;
+  return new Date(timestamp)>new Date(current)?timestamp:current;
+}
+
+function summarizeLanguages(aggregate,source,weight){
+  Object.entries(source||{}).forEach(([language,value])=>{
+    aggregate[language]=(aggregate[language]||0)+(value*weight);
+  });
+}
+
+async function getRepoLanguages(repo){
+  const key=(cfg.org||'')+'/'+repo;
+  if(repoLanguageCache[key])return repoLanguageCache[key];
+  if(repoLanguagePromises[key])return repoLanguagePromises[key];
+  const promise=gh('/repos/'+encodeURIComponent(cfg.org)+'/'+encodeURIComponent(repo)+'/languages')
+    .catch(()=>({}))
+    .then(result=>{
+      repoLanguageCache[key]=result||{};
+      delete repoLanguagePromises[key];
+      return repoLanguageCache[key];
+    });
+  repoLanguagePromises[key]=promise;
+  return promise;
+}
+
+async function fetchMemberSummary(member,days){
+  const sinceDate=new Date();
+  sinceDate.setUTCDate(sinceDate.getUTCDate()-days);
+  const since=sinceDate.toISOString();
+  const now=new Date();
+  const buckets=makeTimelineBuckets(days);
   let commits=0;
   let prsOpened=0;
   let prsMerged=0;
+  let openPrCount=0;
   let closedIssues=0;
   let openIssues=0;
+  let discussionCount=0;
+  let latestActivityAt='';
   const recentPRs=[];
   const repoErrors=[];
+  const repoContribs={};
+  const languageStats={};
+  const stalePrList=[];
+  const waitingReviewList=[];
+  const blockedPrList=[];
+  const openPrList=[];
+  let staleOpenPrCount=0;
+  let waitingReviewCount=0;
+  let blockedPrCount=0;
+  let draftPrCount=0;
+  let changesRequestedCount=0;
+  let firstReviewHoursTotal=0;
+  let firstReviewSampleCount=0;
 
   for(const repo of cfg.repos||[]){
     const base='/repos/'+encodeURIComponent(cfg.org)+'/'+encodeURIComponent(repo);
-    const results=await Promise.allSettled([
-      gh(base+'\/commits?author='+encodeURIComponent(member.username)+'&since='+encodeURIComponent(since)+'&per_page=40'),
-      gh(base+'\/pulls?state=all&creator='+encodeURIComponent(member.username)+'&per_page=30'),
-      gh(base+'\/issues?state=closed&assignee='+encodeURIComponent(member.username)+'&since='+encodeURIComponent(since)+'&per_page=30'),
-      gh(base+'\/issues?state=open&assignee='+encodeURIComponent(member.username)+'&per_page=30')
+    const [commitsResult,prsResult,closedResult,openResult,issueCommentsResult,pullCommentsResult]=await Promise.allSettled([
+      gh(base+'/commits?author='+encodeURIComponent(member.username)+'&since='+encodeURIComponent(since)+'&per_page=60'),
+      gh(base+'/pulls?state=all&creator='+encodeURIComponent(member.username)+'&per_page=60'),
+      gh(base+'/issues?state=closed&assignee='+encodeURIComponent(member.username)+'&since='+encodeURIComponent(since)+'&per_page=60'),
+      gh(base+'/issues?state=open&assignee='+encodeURIComponent(member.username)+'&per_page=60'),
+      gh(base+'/issues/comments?since='+encodeURIComponent(since)+'&per_page=80'),
+      gh(base+'/pulls/comments?since='+encodeURIComponent(since)+'&per_page=80')
     ]);
-    const [commitsResult,prsResult,closedResult,openResult]=results;
 
-    if(commitsResult.status==='fulfilled'&&Array.isArray(commitsResult.value))commits+=commitsResult.value.length;
-    else if(commitsResult.status==='rejected')repoErrors.push(repo+' commits');
+    let repoPoints=0;
+
+    if(commitsResult.status==='fulfilled'&&Array.isArray(commitsResult.value)){
+      commits+=commitsResult.value.length;
+      repoPoints+=commitsResult.value.length;
+      commitsResult.value.forEach(commit=>{
+        const timestamp=commit.commit?.author?.date||commit.commit?.committer?.date;
+        addTimelineActivity(buckets,timestamp,1);
+        latestActivityAt=updateLatestActivity(latestActivityAt,timestamp);
+      });
+    }else if(commitsResult.status==='rejected'){
+      repoErrors.push(repo+' commits');
+    }
 
     if(prsResult.status==='fulfilled'&&Array.isArray(prsResult.value)){
-      const weeklyPRs=prsResult.value.filter(pr=>new Date(pr.created_at)>=sinceDate);
-      prsOpened+=weeklyPRs.length;
-      prsMerged+=weeklyPRs.filter(pr=>pr.merged_at).length;
-      weeklyPRs.forEach(pr=>recentPRs.push({...pr,repo}));
-    }else if(prsResult.status==='rejected')repoErrors.push(repo+' PRs');
+      const authoredPRs=prsResult.value;
+      const recentRangePRs=authoredPRs.filter(pr=>{
+        const createdInRange=new Date(pr.created_at)>=sinceDate;
+        const mergedInRange=pr.merged_at&&new Date(pr.merged_at)>=sinceDate;
+        return createdInRange||mergedInRange;
+      });
+      const prsToInspect=authoredPRs.filter(pr=>{
+        const createdInRange=new Date(pr.created_at)>=sinceDate;
+        const mergedInRange=pr.merged_at&&new Date(pr.merged_at)>=sinceDate;
+        return createdInRange||mergedInRange||pr.state==='open';
+      });
+      const openedInRange=recentRangePRs.filter(pr=>new Date(pr.created_at)>=sinceDate);
+      const mergedInRange=authoredPRs.filter(pr=>pr.merged_at&&new Date(pr.merged_at)>=sinceDate);
+      prsOpened+=openedInRange.length;
+      prsMerged+=mergedInRange.length;
+      repoPoints+=openedInRange.length+mergedInRange.length;
+      recentRangePRs.forEach(pr=>recentPRs.push({...pr,repo,activity_at:pr.merged_at&&new Date(pr.merged_at)>=sinceDate?pr.merged_at:pr.created_at}));
+      openedInRange.forEach(pr=>{
+        addTimelineActivity(buckets,pr.created_at,1);
+        latestActivityAt=updateLatestActivity(latestActivityAt,pr.created_at);
+      });
+      mergedInRange.forEach(pr=>{
+        addTimelineActivity(buckets,pr.merged_at,1);
+        latestActivityAt=updateLatestActivity(latestActivityAt,pr.merged_at);
+      });
+
+      let reviewError=false;
+      const reviewData=await mapWithConcurrency(prsToInspect,3,async pr=>{
+        try{
+          const reviews=await gh(base+'/pulls/'+pr.number+'/reviews?per_page=40');
+          return{number:pr.number,reviews:Array.isArray(reviews)?reviews:[]};
+        }catch{
+          reviewError=true;
+          return{number:pr.number,reviews:[]};
+        }
+      });
+      if(reviewError)repoErrors.push(repo+' PR reviews');
+      const reviewsByNumber={};
+      reviewData.forEach(item=>{reviewsByNumber[item.number]=item.reviews||[]});
+
+      authoredPRs.filter(pr=>pr.state==='open').forEach(pr=>{
+        openPrCount++;
+        const reviews=reviewsByNumber[pr.number]||[];
+        const firstReviewAt=firstReviewTimestamp(reviews);
+        const latestReviewState=latestMeaningfulReviewState(reviews);
+        const ageHours=hoursBetween(pr.created_at,now);
+        const staleHours=hoursBetween(pr.updated_at||pr.created_at,now);
+        const waitingReview=!firstReviewAt&&ageHours!==null&&ageHours>=WAITING_REVIEW_HOURS;
+        const stale=staleHours!==null&&staleHours>=STALE_PR_HOURS;
+        const changesRequested=latestReviewState==='CHANGES_REQUESTED';
+        const blocked=changesRequested||(stale&&!firstReviewAt)||Boolean(pr.draft&&ageHours!==null&&ageHours>=WAITING_REVIEW_HOURS*2);
+        const prSummary={
+          repo,
+          number:pr.number,
+          title:pr.title,
+          url:pr.html_url,
+          created_at:pr.created_at,
+          updated_at:pr.updated_at,
+          draft:Boolean(pr.draft),
+          requestedReviewers:(pr.requested_reviewers||[]).length,
+          latestReviewState
+        };
+
+        openPrList.push(prSummary);
+        if(pr.draft)draftPrCount++;
+        if(waitingReview){
+          waitingReviewCount++;
+          waitingReviewList.push({...prSummary,ageHours});
+        }
+        if(stale){
+          staleOpenPrCount++;
+          stalePrList.push({...prSummary,staleHours});
+        }
+        if(changesRequested)changesRequestedCount++;
+        if(blocked){
+          blockedPrCount++;
+          blockedPrList.push({
+            ...prSummary,
+            staleHours,
+            reason:changesRequested?'Changes requested':pr.draft?'Draft for too long':'Stale without review'
+          });
+        }
+      });
+
+      prsToInspect.forEach(pr=>{
+        const firstReviewAt=firstReviewTimestamp(reviewsByNumber[pr.number]||[]);
+        if(firstReviewAt&&new Date(pr.created_at)>=sinceDate){
+          const leadHours=hoursBetween(pr.created_at,firstReviewAt);
+          if(leadHours!==null){
+            firstReviewHoursTotal+=leadHours;
+            firstReviewSampleCount++;
+          }
+        }
+      });
+    }else if(prsResult.status==='rejected'){
+      repoErrors.push(repo+' PRs');
+    }
 
     if(closedResult.status==='fulfilled'&&Array.isArray(closedResult.value)){
-      closedIssues+=closedResult.value.filter(issue=>!issue.pull_request).length;
-    }else if(closedResult.status==='rejected')repoErrors.push(repo+' closed issues');
+      const issues=closedResult.value.filter(issue=>!issue.pull_request);
+      closedIssues+=issues.length;
+      repoPoints+=issues.length;
+      issues.forEach(issue=>{
+        addTimelineActivity(buckets,issue.closed_at||issue.updated_at,1);
+        latestActivityAt=updateLatestActivity(latestActivityAt,issue.closed_at||issue.updated_at);
+      });
+    }else if(closedResult.status==='rejected'){
+      repoErrors.push(repo+' closed issues');
+    }
 
     if(openResult.status==='fulfilled'&&Array.isArray(openResult.value)){
       openIssues+=openResult.value.filter(issue=>!issue.pull_request).length;
-    }else if(openResult.status==='rejected')repoErrors.push(repo+' open issues');
+    }else if(openResult.status==='rejected'){
+      repoErrors.push(repo+' open issues');
+    }
+
+    if(issueCommentsResult.status==='fulfilled'&&Array.isArray(issueCommentsResult.value)){
+      const comments=issueCommentsResult.value.filter(comment=>comment.user?.login===member.username);
+      discussionCount+=comments.length;
+      repoPoints+=comments.length;
+      comments.forEach(comment=>{
+        addTimelineActivity(buckets,comment.created_at,1);
+        latestActivityAt=updateLatestActivity(latestActivityAt,comment.created_at);
+      });
+    }else if(issueCommentsResult.status==='rejected'){
+      repoErrors.push(repo+' issue comments');
+    }
+
+    if(pullCommentsResult.status==='fulfilled'&&Array.isArray(pullCommentsResult.value)){
+      const comments=pullCommentsResult.value.filter(comment=>comment.user?.login===member.username);
+      discussionCount+=comments.length;
+      repoPoints+=comments.length;
+      comments.forEach(comment=>{
+        addTimelineActivity(buckets,comment.created_at,1);
+        latestActivityAt=updateLatestActivity(latestActivityAt,comment.created_at);
+      });
+    }else if(pullCommentsResult.status==='rejected'){
+      repoErrors.push(repo+' pull comments');
+    }
+
+    if(repoPoints>0){
+      repoContribs[repo]=repoPoints;
+      const repoLanguages=await getRepoLanguages(repo);
+      summarizeLanguages(languageStats,repoLanguages,repoPoints);
+    }
   }
 
   const pct=(closedIssues+openIssues)>0?Math.round((closedIssues/(closedIssues+openIssues))*100):0;
@@ -924,24 +1481,42 @@ async function fetchMemberSummary(member){
     commits,
     prsOpened,
     prsMerged,
+    openPrCount,
     closedIssues,
     openIssues,
     pct,
-    recentPRs:sortByDate(recentPRs,'created_at').slice(0,3),
-    discussionCount:0,
+    discussionCount,
+    recentPRs:sortByDate(recentPRs,'activity_at').slice(0,4),
     mergedOthers:0,
     closedOthers:0,
-    repoErrors
+    repoErrors:[...new Set(repoErrors)],
+    repoContribs,
+    languageStats,
+    activityTimeline:buckets.dates.map(date=>({date,count:buckets.counts[date]||0})),
+    latestActivityAt,
+    staleOpenPrCount,
+    waitingReviewCount,
+    blockedPrCount,
+    draftPrCount,
+    changesRequestedCount,
+    avgFirstReviewHours:firstReviewSampleCount?Math.round((firstReviewHoursTotal/firstReviewSampleCount)*10)/10:null,
+    firstReviewHoursTotal:Math.round(firstReviewHoursTotal*10)/10,
+    firstReviewSampleCount,
+    stalePrList:sortByDate(stalePrList,'updated_at').slice(0,6),
+    waitingReviewList:sortByDate(waitingReviewList,'created_at').slice(0,6),
+    blockedPrList:sortByDate(blockedPrList,'updated_at').slice(0,6),
+    openPrList:sortByDate(openPrList,'updated_at').slice(0,8)
   };
+  summary.prAlertCount=summary.staleOpenPrCount+summary.waitingReviewCount+summary.blockedPrCount;
   summary.actScore=buildActScore(summary);
   return summary;
 }
 
-async function fetchMemberDetails(member){
-  const summary=summaryCache[member.username]||await fetchMemberSummary(member);
-  const since=since7();
-  const sinceDate=new Date(since);
-  let discussionCount=0;
+async function fetchMemberDetails(member,days){
+  const summary=getSummaryStore(days)[member.username]||await fetchMemberSummary(member,days);
+  const sinceDate=new Date();
+  sinceDate.setUTCDate(sinceDate.getUTCDate()-days);
+  const since=sinceDate.toISOString();
   let mergedOthers=0;
   let closedOthers=0;
   const closedList=[];
@@ -953,37 +1528,36 @@ async function fetchMemberDetails(member){
 
   for(const repo of cfg.repos||[]){
     const base='/repos/'+encodeURIComponent(cfg.org)+'/'+encodeURIComponent(repo);
-    const results=await Promise.allSettled([
-      gh(base+'\/pulls?state=all&creator='+encodeURIComponent(member.username)+'&per_page=40'),
-      gh(base+'\/issues?state=closed&assignee='+encodeURIComponent(member.username)+'&since='+encodeURIComponent(since)+'&per_page=40'),
-      gh(base+'\/issues?state=open&assignee='+encodeURIComponent(member.username)+'&per_page=40'),
-      gh(base+'\/issues/comments?since='+encodeURIComponent(since)+'&per_page=60'),
-      gh(base+'\/pulls/comments?since='+encodeURIComponent(since)+'&per_page=60'),
-      gh(base+'\/pulls?state=closed&per_page=40'),
-      gh(base+'\/issues?state=closed&since='+encodeURIComponent(since)+'&per_page=40')
+    const [prsResult,closedResult,openResult,allClosedPrsResult,allClosedIssuesResult]=await Promise.allSettled([
+      gh(base+'/pulls?state=all&creator='+encodeURIComponent(member.username)+'&per_page=80'),
+      gh(base+'/issues?state=closed&assignee='+encodeURIComponent(member.username)+'&since='+encodeURIComponent(since)+'&per_page=80'),
+      gh(base+'/issues?state=open&assignee='+encodeURIComponent(member.username)+'&per_page=80'),
+      gh(base+'/pulls?state=closed&per_page=60'),
+      gh(base+'/issues?state=closed&since='+encodeURIComponent(since)+'&per_page=60')
     ]);
-    const [prsResult,closedResult,openResult,issueCommentsResult,pullCommentsResult,allClosedPrsResult,allClosedIssuesResult]=results;
 
     if(prsResult.status==='fulfilled'&&Array.isArray(prsResult.value)){
-      const weeklyPRs=prsResult.value.filter(pr=>new Date(pr.created_at)>=sinceDate);
-      weeklyPRs.forEach(pr=>recentPRs.push({...pr,repo}));
-    }else if(prsResult.status==='rejected')repoErrors.push(repo+' profile PRs');
+      const relevant=prsResult.value.filter(pr=>{
+        const createdInRange=new Date(pr.created_at)>=sinceDate;
+        const mergedInRange=pr.merged_at&&new Date(pr.merged_at)>=sinceDate;
+        return createdInRange||mergedInRange;
+      });
+      relevant.forEach(pr=>recentPRs.push({...pr,repo,activity_at:pr.merged_at&&new Date(pr.merged_at)>=sinceDate?pr.merged_at:pr.created_at}));
+    }else if(prsResult.status==='rejected'){
+      repoErrors.push(repo+' profile PRs');
+    }
 
     if(closedResult.status==='fulfilled'&&Array.isArray(closedResult.value)){
       closedResult.value.filter(issue=>!issue.pull_request).forEach(issue=>closedList.push({...issue,repo}));
-    }else if(closedResult.status==='rejected')repoErrors.push(repo+' completed tasks');
+    }else if(closedResult.status==='rejected'){
+      repoErrors.push(repo+' completed tasks');
+    }
 
     if(openResult.status==='fulfilled'&&Array.isArray(openResult.value)){
       openResult.value.filter(issue=>!issue.pull_request).forEach(issue=>openList.push({...issue,repo}));
-    }else if(openResult.status==='rejected')repoErrors.push(repo+' pending tasks');
-
-    if(issueCommentsResult.status==='fulfilled'&&Array.isArray(issueCommentsResult.value)){
-      discussionCount+=issueCommentsResult.value.filter(comment=>comment.user?.login===member.username).length;
-    }else if(issueCommentsResult.status==='rejected')repoErrors.push(repo+' issue comments');
-
-    if(pullCommentsResult.status==='fulfilled'&&Array.isArray(pullCommentsResult.value)){
-      discussionCount+=pullCommentsResult.value.filter(comment=>comment.user?.login===member.username).length;
-    }else if(pullCommentsResult.status==='rejected')repoErrors.push(repo+' pull comments');
+    }else if(openResult.status==='rejected'){
+      repoErrors.push(repo+' pending tasks');
+    }
 
     if(allClosedPrsResult.status==='fulfilled'&&Array.isArray(allClosedPrsResult.value)){
       const merged=allClosedPrsResult.value.filter(pr=>pr.merged_at&&pr.merged_by?.login===member.username&&pr.user?.login!==member.username&&new Date(pr.merged_at)>=sinceDate);
@@ -1000,12 +1574,11 @@ async function fetchMemberDetails(member){
 
   const detail={
     ...summary,
-    discussionCount,
     mergedOthers,
     closedOthers,
-    recentPRs:sortByDate(recentPRs,'created_at').slice(0,5),
+    recentPRs:sortByDate(recentPRs,'activity_at').slice(0,6),
     closedList:sortByDate(closedList,'closed_at').slice(0,6),
-    openList:sortByDate(openList,'created_at').slice(0,6),
+    openList:sortByDate(openList,'updated_at').slice(0,6),
     mergedOthersList:sortByDate(mergedOthersList,'merged_at').slice(0,4),
     closedOthersList:sortByDate(closedOthersList,'closed_at').slice(0,4),
     repoErrors:[...new Set(repoErrors)]
@@ -1014,8 +1587,22 @@ async function fetchMemberDetails(member){
   return detail;
 }
 
+function getSortedSummaryValues(days=currentRangeDays){
+  const store=getSummaryStore(days);
+  const values=Object.values(store);
+  const sorters={
+    activity:(a,b)=>b.actScore-a.actScore,
+    commits:(a,b)=>b.commits-a.commits,
+    prs:(a,b)=>b.prsOpened-a.prsOpened,
+    merged:(a,b)=>b.prsMerged-a.prsMerged,
+    name:(a,b)=>a.member.name.localeCompare(b.member.name)
+  };
+  return values.sort(sorters[currentSortKey]||sorters.activity);
+}
+
 function renderTeamLoadingState(){
   $('stats-bar').innerHTML='';
+  $('team-alerts').innerHTML='';
   $('tgrid').innerHTML=(cfg.members||[]).map(member=>`
     <div class="wcard">
       <div class="whead">
@@ -1023,177 +1610,303 @@ function renderTeamLoadingState(){
         <div class="winf"><h3>${esc(member.name)}</h3><span>@${esc(member.username)}</span></div>
         <span class="badge b-ld">Loading</span>
       </div>
-      <div class="wbody" style="padding:20px;color:#8b949e;font-size:13px">Fetching recent GitHub activity…</div>
+      <div class="wbody" style="padding:20px;color:#8b949e;font-size:13px">Fetching ${currentRangeDays}-day GitHub activity…</div>
     </div>`).join('');
 }
 
-function renderTeamPage(){
-  if(session.role!=='manager')return;
-  const values=Object.values(summaryCache);
-  updateLastUpdatedUI();
+function buildTeamAlerts(values){
+  const staleItems=values.flatMap(summary=>(summary.stalePrList||[]).map(pr=>({
+    title:compactPrLabel(pr),
+    meta:`${summary.member.name} · ${pr.repo} · stale for ${formatHourDuration(pr.staleHours)}`,
+    rank:pr.staleHours||0
+  }))).sort((a,b)=>b.rank-a.rank).slice(0,5);
+  const waitingItems=values.flatMap(summary=>(summary.waitingReviewList||[]).map(pr=>({
+    title:compactPrLabel(pr),
+    meta:`${summary.member.name} · ${pr.repo} · waiting ${formatHourDuration(pr.ageHours)} for first review`,
+    rank:pr.ageHours||0
+  }))).sort((a,b)=>b.rank-a.rank).slice(0,5);
+  const blockedItems=values.flatMap(summary=>(summary.blockedPrList||[]).map(pr=>({
+    title:compactPrLabel(pr),
+    meta:`${summary.member.name} · ${pr.repo} · ${pr.reason}`,
+    rank:pr.staleHours||0
+  }))).sort((a,b)=>b.rank-a.rank).slice(0,5);
+  const overloadedItems=values
+    .filter(summary=>(summary.openIssues+summary.openPrCount)>=OVERLOAD_THRESHOLD)
+    .sort((a,b)=>(b.openIssues+b.openPrCount)-(a.openIssues+a.openPrCount))
+    .slice(0,5)
+    .map(summary=>({
+      title:summary.member.name,
+      meta:`${summary.openPrCount} open PRs and ${summary.openIssues} open issues in the active range`,
+      severity:'warn'
+    }));
+  const slowReviewItems=values
+    .filter(summary=>summary.avgFirstReviewHours!==null&&summary.avgFirstReviewHours>=SLOW_REVIEW_HOURS)
+    .sort((a,b)=>(b.avgFirstReviewHours||0)-(a.avgFirstReviewHours||0))
+    .slice(0,5)
+    .map(summary=>({
+      title:summary.member.name,
+      meta:`Average first review time is ${formatHourDuration(summary.avgFirstReviewHours)} across ${summary.firstReviewSampleCount} reviewed PRs`,
+      severity:'warn'
+    }));
 
+  return[
+    {title:'Stale PRs',count:values.reduce((sum,item)=>sum+item.staleOpenPrCount,0),tone:alertSeverity(values.reduce((sum,item)=>sum+item.staleOpenPrCount,0)),description:'Open pull requests that have not moved for at least 72 hours.',items:staleItems},
+    {title:'Waiting For Review',count:values.reduce((sum,item)=>sum+item.waitingReviewCount,0),tone:alertSeverity(values.reduce((sum,item)=>sum+item.waitingReviewCount,0)),description:'Open pull requests older than 24 hours without a first review.',items:waitingItems},
+    {title:'Blocked Work',count:values.reduce((sum,item)=>sum+item.blockedPrCount,0),tone:alertSeverity(values.reduce((sum,item)=>sum+item.blockedPrCount,0)),description:'PRs flagged as blocked by changes requested, long-lived drafts, or stale no-review work.',items:blockedItems},
+    {title:'Load & Review Risk',count:overloadedItems.length+slowReviewItems.length,tone:alertSeverity(overloadedItems.length+slowReviewItems.length),description:'Teammates carrying the heaviest open workload or experiencing slow review turnaround.',items:[...overloadedItems,...slowReviewItems].slice(0,5)}
+  ];
+}
+
+function renderTeamAlerts(values){
+  if(!isManager()){
+    $('team-alerts').innerHTML='';
+    return;
+  }
+  const cards=buildTeamAlerts(values);
+  $('team-alerts').innerHTML=`<div class="alerts-panel">${cards.map(card=>`
+    <div class="alert-card ${card.tone}">
+      <div class="alert-head">
+        <h3>${card.title}</h3>
+        <span class="alert-pill">${card.count}</span>
+      </div>
+      <p>${card.description}</p>
+      ${card.items.length?`<div class="alert-list">${card.items.map(item=>`
+        <div class="alert-item">
+          <strong>${esc(item.title)}</strong>
+          <span>${esc(item.meta)}</span>
+        </div>`).join('')}</div>`:`<div class="alert-empty">No urgent items in the current ${currentRangeDays}-day snapshot.</div>`}
+    </div>`).join('')}</div>`;
+}
+
+function renderTeamStats(values){
+  if(!values.length){$('stats-bar').innerHTML='';return}
+  const totals=values.reduce((acc,item)=>{
+    acc.commits+=item.commits;
+    acc.merged+=item.prsMerged;
+    acc.openPrs+=item.openPrCount||0;
+    acc.closed+=item.closedIssues;
+    acc.open+=item.openIssues;
+    acc.discussion+=item.discussionCount||0;
+    acc.stale+=item.staleOpenPrCount||0;
+    acc.blocked+=item.blockedPrCount||0;
+    acc.waiting+=item.waitingReviewCount||0;
+    acc.reviewHours+=(item.firstReviewHoursTotal||0);
+    acc.reviewSamples+=(item.firstReviewSampleCount||0);
+    return acc;
+  },{commits:0,merged:0,openPrs:0,closed:0,open:0,discussion:0,stale:0,blocked:0,waiting:0,reviewHours:0,reviewSamples:0});
+  const avgReview=totals.reviewSamples?totals.reviewHours/totals.reviewSamples:null;
+  $('stats-bar').innerHTML=`
+    <div class="sc"><div class="sv">${totals.commits}</div><div class="sl">Commits</div></div>
+    <div class="sc"><div class="sv">${totals.merged}</div><div class="sl">PRs merged</div></div>
+    <div class="sc"><div class="sv">${totals.openPrs}</div><div class="sl">Open PRs</div></div>
+    <div class="sc"><div class="sv">${totals.closed}</div><div class="sl">Issues closed</div></div>
+    <div class="sc"><div class="sv" style="font-size:20px">${avgReview===null?'--':esc(formatHourDuration(avgReview))}</div><div class="sl">Avg first review</div></div>
+    <div class="sc"><div class="sv" style="color:${totals.stale+totals.waiting+totals.blocked?'#f85149':'#3fb950'}">${totals.stale+totals.waiting+totals.blocked}</div><div class="sl">Active PR alerts</div></div>`;
+}
+
+function workerCard(data){
+  const member=data.member;
+  const userTags=tags[member.username]||[];
+  const badge=activityBadge(data);
+  return `
+    <div class="wcard clickable" onclick="viewProfile('${member.username}')">
+      <div class="whead">
+        <div class="wav" style="background:${member.color}">${ini(member.name)}</div>
+        <div class="winf"><h3>${esc(member.name)}</h3><span>@${esc(member.username)}</span></div>
+        <span class="badge ${badge.cls}">${badge.label}</span>
+      </div>
+      <div class="wbody">
+        <div class="mr"><span class="ml">Commits</span><span class="mv bl">${data.commits}</span></div>
+        <div class="mr"><span class="ml">PRs opened / merged</span><span class="mv">${data.prsOpened} / <span class="gr">${data.prsMerged}</span></span></div>
+        <div class="mr"><span class="ml">Open PRs</span><span class="mv ${data.openPrCount>2?'rd':'or'}">${data.openPrCount||0}</span></div>
+        <div class="mr"><span class="ml">PR alerts</span><span class="mv ${data.prAlertCount?'rd':'gr'}">${data.staleOpenPrCount||0} stale · ${data.waitingReviewCount||0} waiting</span></div>
+        <div class="mr"><span class="ml">Discussion</span><span class="mv or">${data.discussionCount||0}</span></div>
+        <div class="mr"><span class="ml">Closed issues</span><span class="mv gr">${data.closedIssues}</span></div>
+        <div class="mr"><span class="ml">Open issues</span><span class="mv ${data.openIssues>3?'rd':'or'}">${data.openIssues}</span></div>
+        <div class="pb-wrap">
+          <div class="pb-lbl"><span>Task completion</span><span>${data.pct}%</span></div>
+          <div class="pb"><div class="pbf" style="width:${data.pct}%;background:${member.color}"></div></div>
+        </div>
+        ${data.recentPRs.length?`<div class="asec"><div class="attl">Recent pull requests</div>${data.recentPRs.slice(0,3).map(pr=>`<div class="aitem"><span>${pr.merged_at?'✅':pr.state==='open'?'🟢':'🔴'}</span><span>#${pr.number} ${esc(pr.title.slice(0,52))}${pr.title.length>52?'…':''}</span></div>`).join('')}</div>`:''}
+        ${userTags.length?`<div class="tags-row">${userTags.map(tag=>`<span class="tag">${esc(tag)}</span>`).join('')}</div>`:''}
+        ${data.repoErrors?.length?`<div class="minor-note">Partial data: ${esc(data.repoErrors.slice(0,3).join(', '))}${data.repoErrors.length>3?'…':''}</div>`:''}
+      </div>
+      <button class="more-btn">View profile details →</button>
+    </div>`;
+}
+
+function renderTeamPage(){
+  if(!isManager())return;
+  const values=getSortedSummaryValues(currentRangeDays);
+  updateLastUpdatedUI();
+  syncControls();
   if(!values.length){
     $('stats-bar').innerHTML='';
+    $('team-alerts').innerHTML='';
     $('tgrid').innerHTML=`<div class="empty-state"><strong>No team data yet.</strong><br>Run a refresh after setup validation completes.</div>`;
     return;
   }
-
-  const totalCommits=values.reduce((sum,item)=>sum+item.commits,0);
-  const totalMerged=values.reduce((sum,item)=>sum+item.prsMerged,0);
-  const totalClosed=values.reduce((sum,item)=>sum+item.closedIssues,0);
-  const totalOpen=values.reduce((sum,item)=>sum+item.openIssues,0);
-  const top=[...values].sort((a,b)=>b.actScore-a.actScore)[0];
-
-  $('stats-bar').innerHTML=`
-    <div class="sc"><div class="sv">${totalCommits}</div><div class="sl">Commits this week</div></div>
-    <div class="sc"><div class="sv">${totalMerged}</div><div class="sl">PRs merged</div></div>
-    <div class="sc"><div class="sv">${totalClosed}</div><div class="sl">Issues closed</div></div>
-    <div class="sc"><div class="sv">${totalOpen}</div><div class="sl">Open issues</div></div>
-    <div class="sc"><div class="sv" style="font-size:18px;color:${top.member.color}">${esc(top.member.name.split(' ')[0])}</div><div class="sl">Top contributor</div></div>`;
-
-  $('tgrid').innerHTML=values.map(data=>{
-    const badge=activityBadge(data);
-    return `
-      <div class="wcard clickable" onclick="viewProfile('${data.member.username}')">
-        <div class="whead">
-          <div class="wav" style="background:${data.member.color}">${ini(data.member.name)}</div>
-          <div class="winf"><h3>${esc(data.member.name)}</h3><span>@${esc(data.member.username)}</span></div>
-          <span class="badge ${badge.cls}">${badge.label}</span>
-        </div>
-        <div class="wbody">
-          <div class="mr"><span class="ml">Commits</span><span class="mv bl">${data.commits}</span></div>
-          <div class="mr"><span class="ml">PRs opened / merged</span><span class="mv">${data.prsOpened} / <span class="gr">${data.prsMerged}</span></span></div>
-          <div class="mr"><span class="ml">Closed issues</span><span class="mv gr">${data.closedIssues}</span></div>
-          <div class="mr"><span class="ml">Open issues</span><span class="mv ${data.openIssues>3?'rd':'or'}">${data.openIssues}</span></div>
-          <div class="pb-wrap">
-            <div class="pb-lbl"><span>Task completion</span><span>${data.pct}%</span></div>
-            <div class="pb"><div class="pbf" style="width:${data.pct}%;background:${data.member.color}"></div></div>
-          </div>
-          ${data.recentPRs.length?`<div class="asec"><div class="attl">Recent pull requests</div>${data.recentPRs.map(pr=>`<div class="aitem"><span>${pr.merged_at?'✅':pr.state==='open'?'🟢':'🔴'}</span><span>#${pr.number} ${esc(pr.title.slice(0,52))}${pr.title.length>52?'…':''}</span></div>`).join('')}</div>`:''}
-          ${data.repoErrors?.length?`<div class="minor-note">Partial data: ${esc(data.repoErrors.slice(0,3).join(', '))}${data.repoErrors.length>3?'…':''}</div>`:''}
-        </div>
-        <button class="more-btn">View profile details →</button>
-      </div>`;
-  }).join('');
+  renderTeamStats(values);
+  renderTeamAlerts(values);
+  $('tgrid').innerHTML=values.map(workerCard).join('');
 }
 
-async function loadTeamSummary({background=false}={}){
-  if(summaryLoadPromise)return summaryLoadPromise;
-  const currentToken=++summaryLoadToken;
+async function loadTeamSummary({background=false,days=currentRangeDays}={}){
+  const key=rangeKey(days);
+  if(summaryLoadPromises[key])return summaryLoadPromises[key];
+  summaryLoadTokens[key]=(summaryLoadTokens[key]||0)+1;
+  const token=summaryLoadTokens[key];
   $('refresh-btn').disabled=true;
-  if(!background||!Object.keys(summaryCache).length){
-    setSyncPill('Loading GitHub data…','warn');
-    if(session.role==='manager'&&!Object.keys(summaryCache).length)renderTeamLoadingState();
+  if(!background||!Object.keys(getSummaryStore(days)).length){
+    setSyncPill('Loading '+days+'-day GitHub data…','warn');
+    if(isManager()&&activePage()==='team')renderTeamLoadingState();
   }else{
-    setSyncPill('Refreshing GitHub data…','warn');
+    setSyncPill('Refreshing '+days+'-day GitHub data…','warn');
   }
 
-  summaryLoadPromise=(async()=>{
+  summaryLoadPromises[key]=(async()=>{
     try{
-      const members=cfg.members||[];
-      const results=await mapWithConcurrency(members,2,member=>fetchMemberSummary(member));
-      if(currentToken!==summaryLoadToken)return;
-      summaryCache={};
-      results.forEach(result=>{summaryCache[result.member.username]=result});
-      lastUpdatedAt=new Date().toISOString();
+      const results=await mapWithConcurrency(cfg.members||[],2,member=>fetchMemberSummary(member,days));
+      if(token!==summaryLoadTokens[key])return;
+      const store={};
+      results.forEach(result=>{store[result.member.username]=result});
+      summaryCache[key]=store;
+      if(!detailCache[key])detailCache[key]={};
+      setRangeUpdated(days,new Date().toISOString());
       persistCache();
-      updateLastUpdatedUI();
-      if(session.role==='manager')renderTeamPage();
-      if(selectedProfileUsername)renderProfileFor(selectedProfileUsername);
-      setSyncPill('Synced at '+formatTimestamp(lastUpdatedAt),'ok');
+      if(days===currentRangeDays){
+        updateLastUpdatedUI();
+        if(isManager()&&activePage()==='team')renderTeamPage();
+        if(activePage()==='analytics')renderAnalytics();
+        if(selectedProfileUsername||session.memberUsername)renderProfileFor(selectedProfileUsername||session.memberUsername||'');
+      }
+      setSyncPill('Synced '+days+'-day range at '+formatTimestamp(getRangeUpdated(days)),'ok');
     }catch(error){
-      setSyncPill('Refresh failed: '+error.message,'err');
-      if(session.role==='manager'&&!Object.keys(summaryCache).length){
-        $('tgrid').innerHTML=`<div class="empty-state"><strong>Could not load team data.</strong><br>${esc(error.message)}</div>`;
+      if(days===currentRangeDays){
+        setSyncPill('Refresh failed: '+error.message,'err');
+        if(isManager()&&activePage()==='team'&&!Object.keys(getSummaryStore(days)).length){
+          $('tgrid').innerHTML=`<div class="empty-state"><strong>Could not load team data.</strong><br>${esc(error.message)}</div>`;
+        }
       }
     }finally{
       $('refresh-btn').disabled=false;
-      summaryLoadPromise=null;
+      delete summaryLoadPromises[key];
     }
   })();
 
-  return summaryLoadPromise;
+  return summaryLoadPromises[key];
 }
 
 function refreshAll(){
-  detailCache={};
+  const key=rangeKey(currentRangeDays);
+  delete detailCache[key];
+  delete summaryCache[key];
+  delete rangeUpdatedAt[key];
   persistCache();
-  loadTeamSummary({background:Object.keys(summaryCache).length>0});
-  if(selectedProfileUsername)renderProfileFor(selectedProfileUsername);
+  if(isManager()&&activePage()==='team')renderTeamLoadingState();
+  if(activePage()==='profile')renderProfileFor(selectedProfileUsername||session.memberUsername||'');
+  if(activePage()==='analytics')renderAnalytics();
+  loadTeamSummary({background:false,days:currentRangeDays});
 }
 
-function buildPerformanceSummary(data){
+function buildPerformanceSummary(data,days=currentRangeDays){
   if(!data)return'No synced GitHub activity is available yet.';
   const pace=data.actScore>=14?'strong':'steady';
-  const mergeText=data.prsMerged?`${data.prsMerged} of ${data.prsOpened} opened PRs are already merged`:`${data.prsOpened} PRs were opened and are still working through the pipeline`;
+  const mergeText=data.prsMerged?`${data.prsMerged} PR${data.prsMerged===1?' was':'s were'} merged in the last ${days} days`:`${data.prsOpened} PR${data.prsOpened===1?' was':'s were'} opened but none were merged in the last ${days} days`;
   const issueText=(data.closedIssues||data.openIssues)
     ?`They closed ${data.closedIssues} assigned issue${data.closedIssues===1?'':'s'} and currently have ${data.openIssues} still open, putting task completion at ${data.pct}%.`
     :'There are no tracked assigned issues in the configured repositories right now.';
   const discussionText=(data.discussionCount||0)>0
-    ?`They also contributed ${data.discussionCount} discussion comment${data.discussionCount===1?'':'s'} this week.`
+    ?`They also contributed ${data.discussionCount} discussion event${data.discussionCount===1?'':'s'} during this range.`
     :'Discussion activity is light in the current snapshot.';
-  return `${data.member.name} had a ${pace} week with ${data.commits} commits, and ${mergeText}. ${issueText} ${discussionText}`.trim();
+  const prHealthText=data.prAlertCount
+    ?`PR health needs attention with ${data.staleOpenPrCount} stale, ${data.waitingReviewCount} waiting-for-review, and ${data.blockedPrCount} blocked PR${data.blockedPrCount===1?'':'s'}.`
+    :data.openPrCount
+      ?`Their ${data.openPrCount} open PR${data.openPrCount===1?' is':'s are'} currently moving without urgent PR-health alerts.`
+      :'There are no authored open PRs in the current snapshot.';
+  return `${data.member.name} had a ${pace} ${days}-day window with ${data.commits} commits, and ${mergeText}. ${issueText} ${discussionText} ${prHealthText}`.trim();
 }
 
-function renderProfileFor(username){
-  const wrap=$('profile-wrap');
-  if(!username){
-    wrap.innerHTML=`<div class="empty-state"><strong>No profile selected yet.</strong><br>Select a teammate from the team overview to inspect their details.</div>`;
-    return;
-  }
-
-  const summary=summaryCache[username];
-  const detail=detailCache[username];
-  const data=detail||summary;
-  const isOwnProfile=session.role==='dev';
-
-  if(!summary){
-    wrap.innerHTML=`<div class="empty-state"><strong>Syncing profile data…</strong><br>The dashboard is still collecting the latest GitHub summary for ${esc(username)}.</div>`;
-    return;
-  }
-
-  const badge=activityBadge(data);
-  wrap.innerHTML=`
-    <div style="margin-bottom:16px">
-      ${session.role==='manager'?'<button class="tbtn ghost" onclick="showPage(\'team\')">← Back to team</button>':''}
+function buildProfileHeader(data){
+  const backTarget=isManager()?'team':'profile';
+  const tagMarkup=(tags[data.member.username]||[]).map(tag=>`<span class="tag">${esc(tag)}</span>`).join('');
+  return `
+    <div class="page-head">
+      <div class="helper-row">
+        ${isManager()?'<button class="tbtn ghost" onclick="showPage(\'team\')">← Back to team</button>':''}
+      </div>
+      <div class="helper-row">
+        <label for="profile-range-filter" class="sub">Time range</label>
+        <select id="profile-range-filter" onchange="handleRangeChange(this.value)">
+          ${RANGE_OPTIONS.map(days=>`<option value="${days}" ${days===currentRangeDays?'selected':''}>Last ${days} days</option>`).join('')}
+        </select>
+      </div>
     </div>
     <div class="ph">
       <div class="pav" style="background:${data.member.color}">${ini(data.member.name)}</div>
       <div class="pi">
         <h2>${esc(data.member.name)}</h2>
-        <p>@${esc(data.member.username)} · ${badge.label}</p>
+        <p>@${esc(data.member.username)} · ${activityBadge(data).label}</p>
         <a href="https://github.com/${escAttr(data.member.username)}" target="_blank" rel="noreferrer">View on GitHub ↗</a>
       </div>
     </div>
-    <div class="ps-grid">
-      <div class="psc"><div class="pv">${data.commits}</div><div class="pl">Commits</div></div>
-      <div class="psc"><div class="pv">${data.prsOpened}</div><div class="pl">PRs opened</div></div>
-      <div class="psc"><div class="pv gr">${data.prsMerged}</div><div class="pl">PRs merged</div></div>
-      <div class="psc"><div class="pv gr">${data.closedIssues}</div><div class="pl">Closed</div></div>
-      <div class="psc"><div class="pv ${data.openIssues>3?'rd':'or'}">${data.openIssues}</div><div class="pl">Open</div></div>
-      <div class="psc"><div class="pv bl">${detail?detail.discussionCount:0}</div><div class="pl">Discussion</div></div>
-      ${detail&&detail.mergedOthers?`<div class="psc"><div class="pv">${detail.mergedOthers}</div><div class="pl">Merged others</div></div>`:''}
-      ${detail&&detail.closedOthers?`<div class="psc"><div class="pv">${detail.closedOthers}</div><div class="pl">Closed for others</div></div>`:''}
-    </div>
-    <div class="pb-wrap">
-      <div class="pb-lbl"><span>Task completion</span><span>${data.pct}%</span></div>
-      <div class="pb" style="height:8px"><div class="pbf" style="width:${data.pct}%;background:${data.member.color};height:8px"></div></div>
-    </div>
-    <div class="summary-box">
-      <h4>Local weekly summary</h4>
-      <p>${esc(buildPerformanceSummary(data))}</p>
-      <span class="muted">AI coaching is disabled in this standalone build. This summary is generated locally from the synced GitHub data instead.</span>
-    </div>
-    ${detail?renderDetailSections(detail,isOwnProfile):`<div class="cfgsec" style="margin-top:16px"><h3>Loading deeper detail</h3><p class="sub">Pull request lists, issue lists, and discussion totals are loading now.</p></div>`}
+    ${tagMarkup?`<div class="helper-row" style="margin-bottom:12px">${tagMarkup}</div>`:''}
+    ${isManager()?`<div class="helper-row"><button class="tbtn" onclick="openTagModal('${data.member.username}')">Edit tags</button></div>`:''}
   `;
+}
+
+function renderProfileRepoBreakdown(data){
+  const repos=Object.entries(data.repoContribs||{}).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  if(!repos.length)return'';
+  return `<div class="sec-ttl">Top repositories</div>${repos.map(([repo,count])=>`
+    <div class="repo-item">
+      <span class="repo-name">${esc(repo)}</span>
+      <span class="repo-stat">${count} tracked contribution${count===1?'':'s'}</span>
+    </div>`).join('')}`;
+}
+
+function renderProfileLanguages(data){
+  const languages=Object.entries(data.languageStats||{}).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  if(!languages.length)return'';
+  return `<div class="sec-ttl">Language mix</div><div class="helper-row">${languages.map(([language])=>`<span class="tag">${esc(language)}</span>`).join('')}</div>`;
+}
+
+function renderProfilePrHealth(data){
+  const lists=[
+    {title:'Stale PRs',items:data.stalePrList||[],meta:pr=>`${pr.repo} · stale ${formatHourDuration(pr.staleHours)}`},
+    {title:'Waiting for first review',items:data.waitingReviewList||[],meta:pr=>`${pr.repo} · waiting ${formatHourDuration(pr.ageHours)}`},
+    {title:'Blocked PRs',items:data.blockedPrList||[],meta:pr=>`${pr.repo} · ${pr.reason}`}
+  ].filter(section=>section.items.length);
+  if(!lists.length&&!(data.openPrList||[]).length)return'';
+  return `
+    <div class="sec-ttl">PR health</div>
+    <div class="summary-box">
+      <h4>Review and merge flow</h4>
+      <p>${data.openPrCount||0} open PRs, ${data.staleOpenPrCount||0} stale, ${data.waitingReviewCount||0} waiting for first review, ${data.blockedPrCount||0} blocked.</p>
+      <span class="muted">${data.avgFirstReviewHours===null?'No first-review timing is available yet for this range.':`Average time to first review: ${formatHourDuration(data.avgFirstReviewHours)} across ${data.firstReviewSampleCount} reviewed PR${data.firstReviewSampleCount===1?'':'s'}.`}</span>
+    </div>
+    ${lists.map(section=>`
+      <div class="tlist">${section.items.map(pr=>`
+        <div class="titem ${section.title==='Blocked PRs'?'topen':'topen'}">
+          <span class="ticon">${section.title==='Blocked PRs'?'⛔':section.title==='Stale PRs'?'⏳':'👀'}</span>
+          <div class="tbody"><h4>#${pr.number} ${esc(pr.title)}</h4><span>${esc(section.meta(pr))}</span></div>
+        </div>`).join('')}</div>`).join('')}
+    ${(data.openPrList||[]).length?`<div class="sec-ttl">Open PR queue</div><div class="tlist">${data.openPrList.map(pr=>`
+      <div class="titem topen">
+        <span class="ticon">${pr.draft?'📝':pr.latestReviewState==='CHANGES_REQUESTED'?'⛔':'🔍'}</span>
+        <div class="tbody"><h4>#${pr.number} ${esc(pr.title)}</h4><span>${esc(pr.repo)} · updated ${new Date(pr.updated_at||pr.created_at).toLocaleDateString()}${pr.requestedReviewers?` · ${pr.requestedReviewers} requested reviewer${pr.requestedReviewers===1?'':'s'}`:''}</span></div>
+      </div>`).join('')}</div>`:''}`;
 }
 
 function renderDetailSections(detail,isOwnProfile){
   return `
-    ${detail.recentPRs.length?`<div class="sec-ttl">${isOwnProfile?'Your pull requests':'Pull requests this week'}</div><div class="tlist">${detail.recentPRs.map(pr=>`
+    ${renderProfileRepoBreakdown(detail)}
+    ${renderProfileLanguages(detail)}
+    ${renderProfilePrHealth(detail)}
+    ${detail.recentPRs.length?`<div class="sec-ttl">${isOwnProfile?'Your pull requests':'Pull requests in range'}</div><div class="tlist">${detail.recentPRs.map(pr=>`
       <div class="titem ${pr.merged_at?'tdone':'topen'}">
         <span class="ticon">${pr.merged_at?'✅':pr.state==='open'?'🟢':'🔴'}</span>
-        <div class="tbody"><h4>#${pr.number} ${esc(pr.title)}</h4><span>${esc(pr.repo)} · ${pr.merged_at?'Merged':'Opened'} · ${new Date(pr.created_at).toLocaleDateString()}</span></div>
+        <div class="tbody"><h4>#${pr.number} ${esc(pr.title)}</h4><span>${esc(pr.repo)} · ${pr.merged_at?'Merged':'Opened'} · ${new Date(pr.activity_at||pr.created_at).toLocaleDateString()}</span></div>
       </div>`).join('')}</div>`:''}
     ${detail.closedList.length?`<div class="sec-ttl">${isOwnProfile?'Completed tasks':'Completed tasks'}</div><div class="tlist">${detail.closedList.map(issue=>`
       <div class="titem tdone">
@@ -1203,7 +1916,7 @@ function renderDetailSections(detail,isOwnProfile){
     ${detail.openList.length?`<div class="sec-ttl">${isOwnProfile?'Pending tasks':'Pending tasks'}</div><div class="tlist">${detail.openList.map(issue=>`
       <div class="titem topen">
         <span class="ticon">🔖</span>
-        <div class="tbody"><h4>#${issue.number} ${esc(issue.title)}</h4><span>${esc(issue.repo)} · Opened ${new Date(issue.created_at).toLocaleDateString()}</span></div>
+        <div class="tbody"><h4>#${issue.number} ${esc(issue.title)}</h4><span>${esc(issue.repo)} · Updated ${new Date(issue.updated_at||issue.created_at).toLocaleDateString()}</span></div>
       </div>`).join('')}</div>`:''}
     ${detail.mergedOthersList?.length?`<div class="sec-ttl">Others' PRs merged</div><div class="tlist">${detail.mergedOthersList.map(pr=>`
       <div class="titem tdone">
@@ -1219,40 +1932,582 @@ function renderDetailSections(detail,isOwnProfile){
   `;
 }
 
+function renderManagerNotes(username){
+  if(!isManager())return'';
+  const value=notes[username]||'';
+  return `
+    <div class="sec-ttl">Manager notes (private)</div>
+    <div class="note-box">
+      <textarea id="notes-${username}" placeholder="Add private manager notes about this person…">${esc(value)}</textarea>
+      <button class="btn-green" style="width:auto;padding:8px 16px" onclick="saveNotes('${username}')">Save Notes</button>
+      <div class="note-status" id="notes-status-${username}"></div>
+    </div>`;
+}
+
+function renderProfileFor(username){
+  const wrap=$('profile-wrap');
+  if(!username){
+    wrap.innerHTML=`<div class="empty-state"><strong>No profile selected yet.</strong><br>Select a teammate from the team overview to inspect their details.</div>`;
+    return;
+  }
+  const summary=getSummaryStore(currentRangeDays)[username];
+  const detail=getDetailStore(currentRangeDays)[username];
+  const data=detail||summary;
+  const isOwnProfile=session.role==='dev';
+
+  if(!summary){
+    wrap.innerHTML=`<div class="empty-state"><strong>Syncing profile data…</strong><br>The dashboard is still collecting the latest ${currentRangeDays}-day GitHub summary for ${esc(username)}.</div>`;
+    return;
+  }
+
+  wrap.innerHTML=`
+    ${buildProfileHeader(data)}
+    <div class="ps-grid">
+      <div class="psc"><div class="pv">${data.commits}</div><div class="pl">Commits</div></div>
+      <div class="psc"><div class="pv">${data.prsOpened}</div><div class="pl">PRs opened</div></div>
+      <div class="psc"><div class="pv gr">${data.prsMerged}</div><div class="pl">PRs merged</div></div>
+      <div class="psc"><div class="pv ${data.openPrCount>2?'rd':'or'}">${data.openPrCount||0}</div><div class="pl">Open PRs</div></div>
+      <div class="psc"><div class="pv ${data.staleOpenPrCount?'rd':'gr'}">${data.staleOpenPrCount||0}</div><div class="pl">Stale PRs</div></div>
+      <div class="psc"><div class="pv ${data.waitingReviewCount?'or':'gr'}">${data.waitingReviewCount||0}</div><div class="pl">Waiting review</div></div>
+      <div class="psc"><div class="pv" style="font-size:16px">${data.avgFirstReviewHours===null?'--':esc(formatHourDuration(data.avgFirstReviewHours))}</div><div class="pl">First review</div></div>
+      <div class="psc"><div class="pv or">${data.discussionCount||0}</div><div class="pl">Discussion</div></div>
+      <div class="psc"><div class="pv gr">${data.closedIssues}</div><div class="pl">Closed</div></div>
+      <div class="psc"><div class="pv ${data.openIssues>3?'rd':'or'}">${data.openIssues}</div><div class="pl">Open</div></div>
+      ${detail&&detail.mergedOthers?`<div class="psc"><div class="pv">${detail.mergedOthers}</div><div class="pl">Merged others</div></div>`:''}
+      ${data.latestActivityAt?`<div class="psc"><div class="pv" style="font-size:14px">${new Date(data.latestActivityAt).toLocaleDateString()}</div><div class="pl">Latest activity</div></div>`:''}
+    </div>
+    <div class="pb-wrap">
+      <div class="pb-lbl"><span>Task completion</span><span>${data.pct}%</span></div>
+      <div class="pb" style="height:8px"><div class="pbf" style="width:${data.pct}%;background:${data.member.color};height:8px"></div></div>
+    </div>
+    <div class="summary-box">
+      <h4>Local weekly summary</h4>
+      <p>${esc(buildPerformanceSummary(data,currentRangeDays))}</p>
+      <span class="muted">This summary is generated locally from the synced GitHub data for the active range.</span>
+    </div>
+    ${detail?renderDetailSections(detail,isOwnProfile):`<div class="cfgsec" style="margin-top:16px"><h3>Loading deeper detail</h3><p class="sub">PR lists, issue lists, and repository metadata are loading for the ${currentRangeDays}-day window.</p></div>`}
+    ${renderManagerNotes(username)}
+  `;
+}
+
 function viewProfile(username){
-  if(session.role!=='manager'&&session.memberUsername!==username)return;
+  if(!isManager()&&session.memberUsername!==username)return;
   selectedProfileUsername=username;
   $('nb-profile').style.display='';
   showPage('profile');
-  loadMemberDetails(username);
+  loadMemberDetails(username,currentRangeDays);
 }
 
-async function loadMemberDetails(username){
+async function loadMemberDetails(username,days=currentRangeDays){
   if(!username)return null;
-  if(detailCache[username])return detailCache[username];
-  if(detailInFlight.has(username))return detailInFlight.get(username);
+  const store=getDetailStore(days);
+  if(store[username])return store[username];
+  const key=detailFlightKey(username,days);
+  if(detailInFlight.has(key))return detailInFlight.get(key);
   const member=memberByUsername(username);
   if(!member)return null;
 
   const task=(async()=>{
     try{
-      const detail=await fetchMemberDetails(member);
-      detailCache[username]=detail;
+      const detail=await fetchMemberDetails(member,days);
+      getDetailStore(days)[username]=detail;
       persistCache();
-      if(selectedProfileUsername===username&&$('page-profile').classList.contains('active'))renderProfileFor(username);
+      if(days===currentRangeDays&&username===(selectedProfileUsername||session.memberUsername)&&activePage()==='profile')renderProfileFor(username);
       return detail;
     }finally{
-      detailInFlight.delete(username);
+      detailInFlight.delete(key);
     }
   })();
 
-  detailInFlight.set(username,task);
+  detailInFlight.set(key,task);
   return task;
 }
 
+function destroyCharts(){
+  Object.values(chartInstances).forEach(chart=>{
+    try{chart.destroy()}catch{}
+  });
+  chartInstances={};
+}
+
+function aggregatedTimeline(days=currentRangeDays){
+  const store=getSummaryStore(days);
+  const dates=makeTimelineBuckets(days).dates;
+  const counts={};
+  dates.forEach(date=>{counts[date]=0});
+  Object.values(store).forEach(summary=>{
+    (summary.activityTimeline||[]).forEach(point=>{
+      if(counts[point.date]!==undefined)counts[point.date]+=point.count;
+    });
+  });
+  return dates.map(date=>({date,count:counts[date]||0}));
+}
+
+function aggregatedRepos(days=currentRangeDays){
+  const totals={};
+  Object.values(getSummaryStore(days)).forEach(summary=>{
+    Object.entries(summary.repoContribs||{}).forEach(([repo,count])=>{
+      totals[repo]=(totals[repo]||0)+count;
+    });
+  });
+  return Object.entries(totals).sort((a,b)=>b[1]-a[1]);
+}
+
+function aggregatedLanguages(days=currentRangeDays){
+  const totals={};
+  Object.values(getSummaryStore(days)).forEach(summary=>{
+    Object.entries(summary.languageStats||{}).forEach(([language,count])=>{
+      totals[language]=(totals[language]||0)+count;
+    });
+  });
+  return Object.entries(totals).sort((a,b)=>b[1]-a[1]);
+}
+
+function renderTimelineAnalytics(content){
+  const timeline=aggregatedTimeline(currentRangeDays);
+  content.innerHTML=`
+    <div class="chart-card">
+      <h3>Team activity timeline</h3>
+      <canvas id="analytics-timeline-chart"></canvas>
+    </div>`;
+  if(!window.Chart)return;
+  chartInstances.timeline=new Chart($('analytics-timeline-chart'),{
+    type:'line',
+    data:{
+      labels:timeline.map(point=>new Date(point.date).toLocaleDateString([], {month:'short',day:'numeric'})),
+      datasets:[{
+        label:'Contribution events',
+        data:timeline.map(point=>point.count),
+        borderColor:'#58a6ff',
+        backgroundColor:'rgba(88,166,255,0.18)',
+        fill:true,
+        tension:.35
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#c9d1d9'}}},
+      scales:{y:{ticks:{color:'#8b949e'}},x:{ticks:{color:'#8b949e'}}}
+    }
+  });
+}
+
+function renderComparisonAnalytics(content){
+  const values=getSortedSummaryValues(currentRangeDays);
+  content.innerHTML=`
+    <div class="chart-card">
+      <h3>Member comparison</h3>
+      <canvas id="analytics-comparison-chart"></canvas>
+    </div>
+    <div class="analytics-grid">${values.map(summary=>`
+      <div class="comp-card">
+        <div class="comp-header">
+          <div class="comp-avatar" style="background:${summary.member.color}">${ini(summary.member.name)}</div>
+          <div class="comp-name">${esc(summary.member.name)}</div>
+        </div>
+        <div class="comp-stat"><span>Commits</span><span>${summary.commits}</span></div>
+        <div class="comp-stat"><span>PRs opened</span><span>${summary.prsOpened}</span></div>
+        <div class="comp-stat"><span>PRs merged</span><span>${summary.prsMerged}</span></div>
+        <div class="comp-stat"><span>Discussion</span><span>${summary.discussionCount||0}</span></div>
+        <div class="comp-stat"><span>Activity score</span><span>${summary.actScore}</span></div>
+      </div>`).join('')}</div>`;
+  if(!window.Chart)return;
+  chartInstances.comparison=new Chart($('analytics-comparison-chart'),{
+    type:'bar',
+    data:{
+      labels:values.map(summary=>summary.member.name),
+      datasets:[
+        {label:'Activity score',data:values.map(summary=>summary.actScore),backgroundColor:'#58a6ff'},
+        {label:'Commits',data:values.map(summary=>summary.commits),backgroundColor:'#3fb950'},
+        {label:'Merged PRs',data:values.map(summary=>summary.prsMerged),backgroundColor:'#d29922'}
+      ]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#c9d1d9'}}},
+      scales:{y:{ticks:{color:'#8b949e'}},x:{ticks:{color:'#8b949e'}}}
+    }
+  });
+}
+
+function renderPRHealthAnalytics(content){
+  const values=getSortedSummaryValues(currentRangeDays);
+  const alertsMarkup=`<div class="alerts-panel">${buildTeamAlerts(values).map(card=>`
+    <div class="alert-card ${card.tone}">
+      <div class="alert-head">
+        <h3>${card.title}</h3>
+        <span class="alert-pill">${card.count}</span>
+      </div>
+      <p>${card.description}</p>
+      ${card.items.length?`<div class="alert-list">${card.items.map(item=>`
+        <div class="alert-item">
+          <strong>${esc(item.title)}</strong>
+          <span>${esc(item.meta)}</span>
+        </div>`).join('')}</div>`:`<div class="alert-empty">No urgent items in the current ${currentRangeDays}-day snapshot.</div>`}
+    </div>`).join('')}</div>`;
+  content.innerHTML=`
+    <div class="chart-card">
+      <h3>PR health by teammate</h3>
+      <canvas id="analytics-prhealth-chart"></canvas>
+      <div class="health-note">Stacked counts show current authored open PR risk across stale, waiting-review, and blocked work.</div>
+    </div>
+    <div class="chart-card">
+      <h3>Average time to first review</h3>
+      <canvas id="analytics-review-speed-chart"></canvas>
+      <div class="health-note">Only PRs with at least one submitted review in the active range are included.</div>
+    </div>
+    ${alertsMarkup}`;
+  if(!window.Chart)return;
+  chartInstances.prhealth=new Chart($('analytics-prhealth-chart'),{
+    type:'bar',
+    data:{
+      labels:values.map(summary=>summary.member.name),
+      datasets:[
+        {label:'Open PRs',data:values.map(summary=>summary.openPrCount||0),backgroundColor:'#58a6ff'},
+        {label:'Stale',data:values.map(summary=>summary.staleOpenPrCount||0),backgroundColor:'#d29922'},
+        {label:'Waiting review',data:values.map(summary=>summary.waitingReviewCount||0),backgroundColor:'#ffa657'},
+        {label:'Blocked',data:values.map(summary=>summary.blockedPrCount||0),backgroundColor:'#f85149'}
+      ]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#c9d1d9'}}},
+      scales:{x:{ticks:{color:'#8b949e'}},y:{ticks:{color:'#8b949e'}}}
+    }
+  });
+  chartInstances.reviewSpeed=new Chart($('analytics-review-speed-chart'),{
+    type:'bar',
+    data:{
+      labels:values.map(summary=>summary.member.name),
+      datasets:[{
+        label:'Hours to first review',
+        data:values.map(summary=>summary.avgFirstReviewHours===null?null:Math.round(summary.avgFirstReviewHours*10)/10),
+        backgroundColor:values.map(summary=>summary.avgFirstReviewHours!==null&&summary.avgFirstReviewHours>=SLOW_REVIEW_HOURS?'#f85149':'#3fb950')
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#c9d1d9'}}},
+      scales:{y:{ticks:{color:'#8b949e'}},x:{ticks:{color:'#8b949e'}}}
+    }
+  });
+}
+
+function heatmapClass(count,max){
+  if(count<=0)return'hm-0';
+  if(max<=0)return'hm-1';
+  const ratio=count/max;
+  if(ratio<.25)return'hm-1';
+  if(ratio<.5)return'hm-2';
+  if(ratio<.75)return'hm-3';
+  return'hm-4';
+}
+
+function renderHeatmapAnalytics(content){
+  const timeline=aggregatedTimeline(currentRangeDays);
+  const max=Math.max(...timeline.map(point=>point.count),0);
+  content.innerHTML=`
+    <div class="chart-card">
+      <h3>Activity heatmap</h3>
+      <p class="sub" style="margin-bottom:14px">Each cell represents one day in the active range using real timestamps from commits, PRs, issues, and comments.</p>
+      <div class="heatmap-wrap">
+        <div class="heatmap-grid">${timeline.map(point=>`<div class="hm-cell ${heatmapClass(point.count,max)}" title="${new Date(point.date).toLocaleDateString()}: ${point.count} contribution event${point.count===1?'':'s'}"></div>`).join('')}</div>
+      </div>
+    </div>`;
+}
+
+function renderRepoAnalytics(content){
+  const repos=aggregatedRepos(currentRangeDays).slice(0,10);
+  if(!repos.length){
+    content.innerHTML=`<div class="empty-state"><strong>No repository breakdown yet.</strong><br>Refresh the active range to collect repo contribution data.</div>`;
+    return;
+  }
+  content.innerHTML=`
+    <div class="chart-card">
+      <h3>Repository breakdown</h3>
+      <canvas id="analytics-repo-chart"></canvas>
+    </div>
+    ${repos.map(([repo,count])=>`<div class="repo-item"><span class="repo-name">${esc(repo)}</span><span class="repo-stat">${count} tracked contribution${count===1?'':'s'}</span></div>`).join('')}`;
+  if(!window.Chart)return;
+  chartInstances.repos=new Chart($('analytics-repo-chart'),{
+    type:'bar',
+    data:{
+      labels:repos.map(([repo])=>repo),
+      datasets:[{label:'Contribution points',data:repos.map(([,count])=>count),backgroundColor:'#58a6ff'}]
+    },
+    options:{
+      indexAxis:'y',
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#c9d1d9'}}},
+      scales:{y:{ticks:{color:'#8b949e'}},x:{ticks:{color:'#8b949e'}}}
+    }
+  });
+}
+
+function renderLanguageAnalytics(content){
+  const languages=aggregatedLanguages(currentRangeDays).slice(0,8);
+  if(!languages.length){
+    content.innerHTML=`<div class="empty-state"><strong>No language distribution yet.</strong><br>Refresh the active range to collect repo language data.</div>`;
+    return;
+  }
+  content.innerHTML=`
+    <div class="chart-card">
+      <h3>Language distribution</h3>
+      <canvas id="analytics-language-chart"></canvas>
+    </div>
+    <div class="helper-row">${languages.map(([language])=>`<span class="tag">${esc(language)}</span>`).join('')}</div>`;
+  if(!window.Chart)return;
+  chartInstances.languages=new Chart($('analytics-language-chart'),{
+    type:'doughnut',
+    data:{
+      labels:languages.map(([language])=>language),
+      datasets:[{
+        data:languages.map(([,count])=>count),
+        backgroundColor:['#58a6ff','#3fb950','#d29922','#a371f7','#f85149','#79c0ff','#7ee787','#ffa657']
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#c9d1d9'}}}
+    }
+  });
+}
+
+function renderAnalytics(){
+  const content=$('analytics-content');
+  destroyCharts();
+  if(!isManager()){
+    content.innerHTML=`<div class="empty-state"><strong>Analytics are manager-only.</strong><br>Developers can still view their profile, goals, recognition, and Team Space.</div>`;
+    return;
+  }
+  syncControls();
+  const values=Object.values(getSummaryStore(currentRangeDays));
+  if(!values.length){
+    content.innerHTML=`<div class="empty-state"><strong>No analytics data yet.</strong><br>Refresh the active ${currentRangeDays}-day range to populate the charts.</div>`;
+    return;
+  }
+  if(typeof Chart==='undefined'){
+    content.innerHTML=`<div class="empty-state"><strong>Charts are unavailable.</strong><br>The Chart.js library did not load in this browser session.</div>`;
+    return;
+  }
+  if(currentAnalyticsView==='timeline')renderTimelineAnalytics(content);
+  else if(currentAnalyticsView==='comparison')renderComparisonAnalytics(content);
+  else if(currentAnalyticsView==='prhealth')renderPRHealthAnalytics(content);
+  else if(currentAnalyticsView==='heatmap')renderHeatmapAnalytics(content);
+  else if(currentAnalyticsView==='repos')renderRepoAnalytics(content);
+  else renderLanguageAnalytics(content);
+}
+
+function renderGoals(){
+  const visible=isManager()?goals:goals.filter(goal=>goal.assignee==='team'||goal.assignee===session.memberUsername);
+  const list=$('goals-list');
+  $('goals-create-btn').style.display=isManager()?'':'none';
+  if(!visible.length){
+    list.innerHTML=`<div class="empty-state"><strong>No goals yet.</strong><br>${isManager()?'Create a team or member goal to start tracking outcomes.':'There are no team or personal goals assigned to you yet.'}</div>`;
+    return;
+  }
+  const sorted=[...visible].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  list.innerHTML=sorted.map(goal=>{
+    const actualIndex=goals.indexOf(goal);
+    return `
+      <div class="goal-card">
+        <div class="goal-header">
+          <div>
+            <div class="goal-title">${esc(goal.title)}</div>
+            <div class="goal-meta">Assigned to: ${esc(goalAssigneeLabel(goal.assignee))} · Due ${new Date(goal.date).toLocaleDateString()}</div>
+          </div>
+          <div class="helper-row">
+            <span class="goal-status status-${goal.status||'pending'}">${goal.status||'pending'}</span>
+            ${isManager()?`<button class="tbtn ghost" onclick="openGoalModal(${actualIndex})">Edit</button>`:''}
+            ${isManager()?`<button class="tbtn ghost" onclick="deleteGoal(${actualIndex})">Delete</button>`:''}
+          </div>
+        </div>
+        <div class="goal-desc">${esc(goal.description)}</div>
+        ${isManager()?`<div class="helper-row"><label class="sub" for="goal-status-${actualIndex}">Status</label><select id="goal-status-${actualIndex}" onchange="updateGoalStatus(${actualIndex},this.value)">${['pending','progress','done'].map(status=>`<option value="${status}" ${goal.status===status?'selected':''}>${status}</option>`).join('')}</select></div>`:''}
+      </div>`;
+  }).join('');
+}
+
+function openGoalModal(index=null){
+  if(!isManager())return;
+  currentGoalIndex=index;
+  $('goal-modal-title').textContent=index===null?'Create Goal':'Edit Goal';
+  $('goal-assignee').innerHTML=`<option value="team">Entire team</option>${(cfg.members||[]).map(member=>`<option value="${member.username}">${esc(member.name)}</option>`).join('')}`;
+  const goal=index===null?null:goals[index];
+  $('goal-assignee').value=goal?.assignee||'team';
+  $('goal-title').value=goal?.title||'';
+  $('goal-desc').value=goal?.description||'';
+  $('goal-date').value=goal?.date||'';
+  $('goal-status').value=goal?.status||'pending';
+  $('goal-status-msg').style.display='none';
+  openModal('goal-modal');
+}
+
+function saveGoal(){
+  const assignee=$('goal-assignee').value;
+  const title=v('goal-title');
+  const description=v('goal-desc');
+  const date=$('goal-date').value;
+  const status=$('goal-status').value;
+  if(!title||!description||!date){
+    $('goal-status-msg').className='status-msg err';
+    $('goal-status-msg').textContent='Fill every field before saving the goal.';
+    $('goal-status-msg').style.display='block';
+    return;
+  }
+  const record={
+    assignee,
+    title,
+    description,
+    date,
+    status,
+    createdAt:currentGoalIndex===null?new Date().toISOString():goals[currentGoalIndex].createdAt
+  };
+  if(currentGoalIndex===null)goals.push(record);
+  else goals[currentGoalIndex]=record;
+  localStorage.setItem(GOALS_KEY,JSON.stringify(goals));
+  closeModal('goal-modal');
+  renderGoals();
+  if(activePage()==='profile')renderProfileFor(selectedProfileUsername||session.memberUsername||'');
+}
+
+function updateGoalStatus(index,status){
+  if(!isManager())return;
+  goals[index].status=status;
+  localStorage.setItem(GOALS_KEY,JSON.stringify(goals));
+  renderGoals();
+}
+
+function deleteGoal(index){
+  if(!isManager())return;
+  if(!confirm('Delete this goal?'))return;
+  goals.splice(index,1);
+  localStorage.setItem(GOALS_KEY,JSON.stringify(goals));
+  renderGoals();
+}
+
+function renderKudos(){
+  const list=$('kudos-list');
+  if(!kudos.length){
+    list.innerHTML=`<div class="empty-state"><strong>No recognition yet.</strong><br>Use the “Give Kudos” button to celebrate wins and helpful work.</div>`;
+    return;
+  }
+  const sorted=[...kudos].sort((a,b)=>new Date(b.time)-new Date(a.time));
+  list.innerHTML=sorted.map(entry=>`
+    <div class="kudos-card">
+      <div class="kudos-from">⭐ From ${esc(entry.from)} to ${esc(entry.to)}</div>
+      <div class="kudos-msg">${esc(entry.message)}</div>
+      <div class="kudos-time">${new Date(entry.time).toLocaleString()}</div>
+    </div>`).join('');
+}
+
+function openKudosModal(){
+  const selected=session.memberUsername||'';
+  $('kudos-to').innerHTML=(cfg.members||[]).filter(member=>member.username!==selected).map(member=>`<option value="${member.username}">${esc(member.name)}</option>`).join('');
+  if(!$('kudos-to').innerHTML){
+    $('kudos-to').innerHTML=(cfg.members||[]).map(member=>`<option value="${member.username}">${esc(member.name)}</option>`).join('');
+  }
+  $('kudos-msg').value='';
+  $('kudos-status-msg').style.display='none';
+  openModal('kudos-modal');
+}
+
+function saveKudos(){
+  const to=$('kudos-to').value;
+  const message=v('kudos-msg');
+  if(!to||!message){
+    $('kudos-status-msg').className='status-msg err';
+    $('kudos-status-msg').textContent='Choose a teammate and write a message before sending recognition.';
+    $('kudos-status-msg').style.display='block';
+    return;
+  }
+  const target=memberByUsername(to);
+  kudos.push({
+    from:session.name,
+    to:target?target.name:to,
+    message,
+    time:new Date().toISOString()
+  });
+  localStorage.setItem(KUDOS_KEY,JSON.stringify(kudos));
+  closeModal('kudos-modal');
+  renderKudos();
+}
+
+function openTagModal(username){
+  if(!isManager())return;
+  currentTagUsername=username;
+  const member=memberByUsername(username);
+  $('tag-member-label').value=member?member.name+' (@'+member.username+')':username;
+  $('tag-input').value=(tags[username]||[]).join(', ');
+  $('tag-status-msg').style.display='none';
+  openModal('tag-modal');
+}
+
+function saveTags(){
+  if(!currentTagUsername)return;
+  tags[currentTagUsername]=$('tag-input').value.split(',').map(tag=>tag.trim()).filter(Boolean);
+  localStorage.setItem(TAGS_KEY,JSON.stringify(tags));
+  closeModal('tag-modal');
+  if(isManager()&&activePage()==='team')renderTeamPage();
+  if(activePage()==='profile')renderProfileFor(selectedProfileUsername||session.memberUsername||'');
+}
+
+function saveNotes(username){
+  notes[username]=$('notes-'+username).value;
+  localStorage.setItem(NOTES_KEY,JSON.stringify(notes));
+  const status=$('notes-status-'+username);
+  if(status)status.textContent='Saved at '+new Date().toLocaleTimeString();
+}
+
+function exportCSV(){
+  if(!isManager())return;
+  const rows=getSortedSummaryValues(currentRangeDays);
+  if(!rows.length)return;
+  let csv='Name,Username,RangeDays,Commits,PRsOpened,PRsMerged,OpenPRs,StalePRs,WaitingReviewPRs,BlockedPRs,AvgFirstReviewHours,Discussion,ClosedIssues,OpenIssues,CompletionPct,ActivityScore,LatestActivity,Tags\n';
+  rows.forEach(summary=>{
+    const userTags=(tags[summary.member.username]||[]).join('|');
+    csv+=[
+      csvCell(summary.member.name),
+      csvCell(summary.member.username),
+      csvCell(currentRangeDays),
+      csvCell(summary.commits),
+      csvCell(summary.prsOpened),
+      csvCell(summary.prsMerged),
+      csvCell(summary.openPrCount||0),
+      csvCell(summary.staleOpenPrCount||0),
+      csvCell(summary.waitingReviewCount||0),
+      csvCell(summary.blockedPrCount||0),
+      csvCell(summary.avgFirstReviewHours===null?'':summary.avgFirstReviewHours),
+      csvCell(summary.discussionCount||0),
+      csvCell(summary.closedIssues),
+      csvCell(summary.openIssues),
+      csvCell(summary.pct),
+      csvCell(summary.actScore),
+      csvCell(summary.latestActivityAt?new Date(summary.latestActivityAt).toISOString():''),
+      csvCell(userTags)
+    ].join(',')+'\n';
+  });
+  const blob=new Blob([csv],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement('a');
+  link.href=url;
+  link.download=`dev-tracker-${currentRangeDays}d-export.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function openModal(id){$(id).classList.add('active')}
+function closeModal(id){$(id).classList.remove('active')}
+
 function buildOfficeGreeting(summary){
   if(!summary)return'Team data is still syncing. Come back after the dashboard finishes the first refresh.';
-  return `${summary.member.name} has ${summary.commits} commits, ${summary.prsOpened} opened PRs, ${summary.prsMerged} merged PRs, and ${summary.openIssues} open issues in the current snapshot.`;
+  return `${summary.member.name} has ${summary.commits} commits, ${summary.prsOpened} opened PRs, ${summary.prsMerged} merged PRs, and ${summary.openIssues} open issues in the current ${currentRangeDays}-day snapshot.`;
 }
 
 function officePromptText(type){
@@ -1261,30 +2516,30 @@ function officePromptText(type){
 }
 
 async function buildOfficeResponse(type,username){
-  const summary=summaryCache[username];
+  const summary=getSummaryStore(currentRangeDays)[username];
   if(!summary)return'The dashboard has not finished syncing this teammate yet.';
-  if(type==='summary')return buildPerformanceSummary(summary);
+  if(type==='summary')return buildPerformanceSummary(summary,currentRangeDays);
 
-  const detail=await loadMemberDetails(username);
+  const detail=await loadMemberDetails(username,currentRangeDays);
   const data=detail||summary;
   if(type==='shipped'){
     if(data.recentPRs?.length){
-      const merged=data.recentPRs.filter(pr=>pr.merged_at);
+      const merged=data.recentPRs.filter(pr=>pr.merged_at&&new Date(pr.merged_at)>=new Date(new Date().setUTCDate(new Date().getUTCDate()-currentRangeDays)));
       if(merged.length)return `The clearest shipped work is ${merged.slice(0,2).map(pr=>'#'+pr.number+' '+pr.title).join(' and ')}. Overall they have ${data.prsMerged} merged PRs in the current window.`;
-      return `They opened ${data.prsOpened} PRs this week, but none are merged yet. The newest PRs are ${data.recentPRs.slice(0,2).map(pr=>'#'+pr.number+' '+pr.title).join(' and ')}.`;
+      return `They opened ${data.prsOpened} PRs in this range, but none are merged yet. The newest PRs are ${data.recentPRs.slice(0,2).map(pr=>'#'+pr.number+' '+pr.title).join(' and ')}.`;
     }
-    return `No pull requests were opened in the current seven-day window, so there is not much shipped work to highlight yet.`;
+    return'No pull requests were opened or merged in the current range, so there is not much shipped work to highlight yet.';
   }
   if(type==='backlog'){
     if(data.openList?.length)return `The main open work right now is ${data.openList.slice(0,2).map(issue=>'#'+issue.number+' '+issue.title).join(' and ')}. In total there are ${data.openIssues} assigned open issues in the tracked repositories.`;
-    return data.openIssues?`There are ${data.openIssues} assigned open issues, but the detailed titles have not loaded yet.`:`There are no assigned open issues in the current snapshot.`;
+    return data.openIssues?`There are ${data.openIssues} assigned open issues, but the detailed titles have not loaded yet.`:'There are no assigned open issues in the current snapshot.';
   }
   if(type==='focus'){
     if(data.openIssues>0)return `The next focus should be reducing the ${data.openIssues} open issue${data.openIssues===1?'':'s'} while keeping PR flow moving. ${data.prsMerged?`There is already merged momentum to build on.`:`Getting the next PR merged would create the clearest signal of progress.`}`;
-    if(data.prsOpened&&!data.prsMerged)return `The biggest next step is getting the open PR work across the line. There is active development, but the merge pipeline is the main thing to unblock.`;
-    return `The week looks relatively clear right now. The best next move is to pick up the next scoped issue and keep the current shipping pace going.`;
+    if(data.prsOpened&&!data.prsMerged)return'The biggest next step is getting the open PR work across the line. There is active development, but the merge pipeline is the main thing to unblock.';
+    return'The range looks relatively clear right now. The best next move is to pick up the next scoped issue and keep the current shipping pace going.';
   }
-  return buildPerformanceSummary(data);
+  return buildPerformanceSummary(data,currentRangeDays);
 }
 
 function renderOfficeOptions(username,disabled=false){
@@ -1297,8 +2552,8 @@ function openDlg(char){
   dlgOpen=true;
   if(document.pointerLockElement)document.exitPointerLock();
   $('dlg-name').textContent=char.userData.name+' (@'+char.userData.username+')';
-  $('dialogue-content').innerHTML=`<p>${esc(buildOfficeGreeting(summaryCache[char.userData.username]))}</p>`;
-  renderOfficeOptions(char.userData.username,!summaryCache[char.userData.username]);
+  $('dialogue-content').innerHTML=`<p>${esc(buildOfficeGreeting(getSummaryStore(currentRangeDays)[char.userData.username]))}</p>`;
+  renderOfficeOptions(char.userData.username,!getSummaryStore(currentRangeDays)[char.userData.username]);
   $('dialogue-box').style.display='block';
 }
 
@@ -1309,7 +2564,7 @@ function closeDlg(){
 }
 
 async function pickOpt(type,username){
-  if(!summaryCache[username])return;
+  if(!getSummaryStore(currentRangeDays)[username])return;
   const char=officeChars.find(item=>item.userData.username===username);
   const speaker=char?.userData.name||username;
   const marker='office-'+Date.now();
@@ -1389,7 +2644,6 @@ function rebuildOfficeOccupants(){
   officeDesks.forEach(desk=>officeScene.remove(desk));
   officeChars=[];
   officeDesks=[];
-
   const positions=[[-8,-8],[0,-8],[8,-8],[-8,4],[0,4],[8,4],[-4,0],[4,0]];
   (cfg.members||[]).forEach((member,index)=>{
     const position=positions[index%positions.length];
@@ -1406,7 +2660,6 @@ function bindOfficeEvents(){
   if(officeEventsBound)return;
   officeEventsBound=true;
   const canvas=$('office-canvas');
-
   document.addEventListener('keydown',onOfficeKey);
   document.addEventListener('keyup',event=>{
     officeKeys[event.key.toLowerCase()]=false;
@@ -1613,7 +2866,7 @@ function officeLoop(){
   });
 
   const prompt=$('interact-prompt');
-  if(nearbyChar&&!dlgOpen&&Object.keys(summaryCache).length){
+  if(nearbyChar&&!dlgOpen&&Object.keys(getSummaryStore(currentRangeDays)).length){
     prompt.style.display='block';
     prompt.textContent='Press E to inspect '+nearbyChar.userData.name;
   }else if(nearbyChar&&!dlgOpen){
@@ -1628,10 +2881,20 @@ function officeLoop(){
 
 function bootstrap(){
   cfg=lsCfg();
+  loadPrefs();
+  loadLocalCollections();
   setupMembers=(cfg.members||[]).length?(cfg.members||[]).map((member,index)=>cloneMember(member,index)):[newMember(0),newMember(1)];
   settingsMembers=(cfg.members||[]).length?(cfg.members||[]).map((member,index)=>cloneMember(member,index)):[newMember(0)];
   renderMembers('setup');
   renderMembers('settings');
+  syncControls();
+  document.addEventListener('click',event=>{
+    if(event.target.classList.contains('modal'))closeModal(event.target.id);
+  });
+  if(restoreSession()){
+    openApp();
+    return;
+  }
   if(!cfg.mgrPw){
     $('login-hint').textContent='First time here? Use the Manager tab to validate the GitHub connection and finish setup.';
   }
